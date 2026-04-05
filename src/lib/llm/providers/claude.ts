@@ -65,6 +65,7 @@ export class ClaudeProvider extends LLMProvider {
     if (toolUseBlocks.length > 0) {
       return {
         toolCalls: toolUseBlocks.map(b => ({
+          id: (b as Anthropic.ToolUseBlock).id,
           name: (b as Anthropic.ToolUseBlock).name,
           arguments: (b as Anthropic.ToolUseBlock).input as Record<string, unknown>,
         })),

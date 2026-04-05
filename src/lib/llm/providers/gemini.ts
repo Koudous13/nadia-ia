@@ -49,7 +49,8 @@ export class GeminiProvider extends LLMProvider {
 
     const toolCalls = candidate.content.parts
       .filter(p => p.functionCall)
-      .map(p => ({
+      .map((p, i) => ({
+        id: `gemini_call_${Date.now()}_${i}`,
         name: p.functionCall!.name,
         arguments: (p.functionCall!.args ?? {}) as Record<string, unknown>,
       }));

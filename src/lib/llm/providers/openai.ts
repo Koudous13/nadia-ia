@@ -29,8 +29,8 @@ export class OpenAIProvider extends LLMProvider {
         return {
           role: 'assistant' as const,
           content: m.content || null,
-          tool_calls: m.toolCalls.map((tc, i) => ({
-            id: `call_${i}`,
+          tool_calls: m.toolCalls.map(tc => ({
+            id: tc.id,
             type: 'function' as const,
             function: { name: tc.name, arguments: JSON.stringify(tc.arguments) },
           })),
@@ -64,6 +64,7 @@ export class OpenAIProvider extends LLMProvider {
         toolCalls: choice.message.tool_calls
           .filter((tc): tc is OpenAI.Chat.Completions.ChatCompletionMessageToolCall & { type: 'function' } => tc.type === 'function')
           .map(tc => ({
+            id: tc.id,
             name: tc.function.name,
             arguments: JSON.parse(tc.function.arguments),
           })),
