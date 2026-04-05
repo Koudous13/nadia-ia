@@ -1,6 +1,6 @@
 import { NadiaChat } from '@/components/chat/NadiaChat';
 
-const DEV_TOKEN = 'pqoTGVHTZy9yype8iXtaenFeTIZKyKVTKxXKGZLB7yZLtGuQ2ondRFHKkBiwmivL';
+const DEV_TOKEN = 'dev-test-token';
 
 export default function Home() {
   return (
