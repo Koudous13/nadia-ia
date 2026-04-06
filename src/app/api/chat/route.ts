@@ -10,18 +10,13 @@ const MAX_TOOL_ROUNDS = 5;
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { message, history = [], userToken } = body as {
+    const { message, history = [] } = body as {
       message: string;
       history: { role: 'user' | 'assistant'; content: string }[];
-      userToken: string;
     };
 
     if (!message) {
       return Response.json({ error: 'Message requis' }, { status: 400 });
-    }
-
-    if (!userToken) {
-      return Response.json({ error: 'Token utilisateur requis' }, { status: 401 });
     }
 
     const llm = getLLMProvider();
@@ -50,7 +45,7 @@ export async function POST(request: NextRequest) {
         // Exécuter chaque outil
         for (const toolCall of response.toolCalls) {
           try {
-            const result = await executeToolCall(toolCall.name, toolCall.arguments, userToken);
+            const result = await executeToolCall(toolCall.name, toolCall.arguments);
             messages.push({
               role: 'tool',
               content: JSON.stringify(result),

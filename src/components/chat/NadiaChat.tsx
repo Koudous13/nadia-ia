@@ -7,11 +7,7 @@ import { ChatInput } from './ChatInput';
 import { QuickActions } from './QuickActions';
 import { NadiaAvatar } from './NadiaAvatar';
 
-interface NadiaChatProps {
-  userToken: string;
-}
-
-export function NadiaChat({ userToken }: NadiaChatProps) {
+export function NadiaChat() {
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -35,7 +31,7 @@ export function NadiaChat({ userToken }: NadiaChatProps) {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, history, userToken }),
+        body: JSON.stringify({ message: text, history }),
       });
 
       if (!res.ok) throw new Error(`Erreur ${res.status}`);
@@ -58,7 +54,7 @@ export function NadiaChat({ userToken }: NadiaChatProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [messages, userToken]);
+  }, [messages]);
 
   const handleQuickAction = (label: string) => {
     const prompts: Record<string, string> = {
