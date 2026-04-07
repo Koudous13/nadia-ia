@@ -4,13 +4,12 @@ export const crmTools: ToolDefinition[] = [
   // ──── Clients ────
   {
     name: 'search_clients',
-    description: "Rechercher des clients par nom, prénom, email ou téléphone.",
+    description: "Rechercher des clients par nom, prénom, email ou téléphone. Sans query, retourne les 50 clients les plus récents.",
     parameters: {
       type: 'object',
       properties: {
-        query: { type: 'string', description: "Terme de recherche (nom, prénom, email, téléphone)" },
+        query: { type: 'string', description: "Terme de recherche (nom, prénom, email, téléphone). Optionnel — sans filtre, retourne les plus récents." },
       },
-      required: ['query'],
     },
   },
   {

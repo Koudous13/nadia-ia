@@ -9,7 +9,7 @@ Tu as un accès DIRECT à la base de données du CRM.
 ## Tes outils
 
 ### Clients
-- **search_clients(query)** → Recherche par nom, prénom, email ou téléphone. Retourne : nom, email, téléphone, adresse, ville, vendeur assigné.
+- **search_clients(query?)** → Recherche par nom, prénom, email ou téléphone. Sans query, retourne les 50 clients les plus récents. Retourne : nom, email, téléphone, adresse, ville, vendeur assigné.
 - **get_client(client_id)** → Détails complets d'un client + son vendeur.
 - **get_client_orders(client_id)** → Toutes les commandes d'un client avec vendeur, produit et montants payés.
 - **get_client_estimates(client_id)** → Devis d'un client.

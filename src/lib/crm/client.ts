@@ -28,7 +28,22 @@ export async function executeToolCall(
     // ──── Clients ────
 
     case 'search_clients': {
-      const q = `%${args.query}%`;
+      if (args.query) {
+        const q = `%${args.query}%`;
+        return queryAll(`
+          SELECT c.id, p.first_name, p.last_name, p.email, p.phone_number, p.address, p.city, p.zip_code,
+                 c.created_at, c.origin_of_provenance, c.referral,
+                 u.name as vendeur
+          FROM clients c
+          LEFT JOIN people p ON c.customer_id = p.id
+          LEFT JOIN users u ON c.user_id = u.id
+          WHERE c.customer_type = 'App\\Models\\Person'
+            AND (p.first_name LIKE ?1 OR p.last_name LIKE ?1 OR p.email LIKE ?1 OR p.phone_number LIKE ?1
+                 OR (p.last_name || ' ' || p.first_name) LIKE ?1 OR (p.first_name || ' ' || p.last_name) LIKE ?1)
+          ORDER BY c.created_at DESC
+          LIMIT 50
+        `, [q]);
+      }
       return queryAll(`
         SELECT c.id, p.first_name, p.last_name, p.email, p.phone_number, p.address, p.city, p.zip_code,
                c.created_at, c.origin_of_provenance, c.referral,
@@ -37,11 +52,9 @@ export async function executeToolCall(
         LEFT JOIN people p ON c.customer_id = p.id
         LEFT JOIN users u ON c.user_id = u.id
         WHERE c.customer_type = 'App\\Models\\Person'
-          AND (p.first_name LIKE ?1 OR p.last_name LIKE ?1 OR p.email LIKE ?1 OR p.phone_number LIKE ?1
-               OR (p.last_name || ' ' || p.first_name) LIKE ?1 OR (p.first_name || ' ' || p.last_name) LIKE ?1)
         ORDER BY c.created_at DESC
         LIMIT 50
-      `, [q]);
+      `);
     }
 
     case 'get_client': {
