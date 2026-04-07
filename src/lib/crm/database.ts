@@ -1,6 +1,6 @@
 import initSqlJs, { Database } from 'sql.js';
 import { readFileSync } from 'fs';
-import { resolve } from 'path';
+import { resolve, join } from 'path';
 
 const DB_PATH = resolve(process.cwd(), 'data', 'paperasse.db');
 
@@ -8,7 +8,16 @@ let _db: Database | null = null;
 let _initPromise: Promise<Database> | null = null;
 
 async function initDb(): Promise<Database> {
-  const SQL = await initSqlJs();
+  const SQL = await initSqlJs({
+    locateFile: (file: string) => {
+      // On Vercel, node_modules may not be at cwd — use require.resolve to find the actual path
+      try {
+        return join(require.resolve('sql.js').replace(/sql\.js[/\\].*$/, 'sql.js'), '..', 'dist', file);
+      } catch {
+        return join(process.cwd(), 'node_modules', 'sql.js', 'dist', file);
+      }
+    },
+  });
   const buffer = readFileSync(DB_PATH);
   return new SQL.Database(buffer);
 }
