@@ -5,6 +5,8 @@ import { executeToolCall } from '@/lib/crm/client';
 import { NADIA_SYSTEM_PROMPT } from '@/lib/system-prompt';
 import { MiddlewareResponse } from '@/types';
 
+export const maxDuration = 30;
+
 const MAX_TOOL_ROUNDS = 5;
 
 export async function POST(request: NextRequest) {

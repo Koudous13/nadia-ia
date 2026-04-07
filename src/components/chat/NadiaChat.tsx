@@ -28,11 +28,16 @@ export function NadiaChat() {
 
     try {
       const history = messages.map(m => ({ role: m.role, content: m.content }));
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 45000);
+
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text, history }),
+        signal: controller.signal,
       });
+      clearTimeout(timeout);
 
       if (!res.ok) throw new Error(`Erreur ${res.status}`);
       const data: MiddlewareResponse = await res.json();
@@ -45,10 +50,13 @@ export function NadiaChat() {
         data: data.donnees ? { type: data.type_donnees ?? 'texte', donnees: data.donnees } : undefined,
       }]);
     } catch (err) {
+      const message = (err as Error).name === 'AbortError'
+        ? 'La requête a pris trop de temps. Essaie de reformuler ta question plus simplement.'
+        : 'Une erreur réseau est survenue. Vérifie ta connexion et réessaie.';
       setMessages(prev => [...prev, {
         id: `error-${Date.now()}`,
         role: 'assistant',
-        content: `Désolée, une erreur est survenue : ${(err as Error).message}`,
+        content: `Désolée, ${message}`,
         timestamp: new Date(),
       }]);
     } finally {
