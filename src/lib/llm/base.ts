@@ -4,6 +4,7 @@ export interface ConversationMessage {
   role: 'system' | 'user' | 'assistant' | 'tool';
   content: string;
   toolCallId?: string;
+  toolName?: string;
   toolCalls?: { id: string; name: string; arguments: Record<string, unknown> }[];
 }
 

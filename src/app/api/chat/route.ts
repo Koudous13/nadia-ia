@@ -50,12 +50,14 @@ export async function POST(request: NextRequest) {
               role: 'tool',
               content: JSON.stringify(result),
               toolCallId: toolCall.id,
+              toolName: toolCall.name,
             });
           } catch (err) {
             messages.push({
               role: 'tool',
               content: JSON.stringify({ error: (err as Error).message }),
               toolCallId: toolCall.id,
+              toolName: toolCall.name,
             });
           }
         }

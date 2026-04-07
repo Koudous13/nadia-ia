@@ -83,7 +83,7 @@ export class GeminiProvider extends LLMProvider {
       } else if (msg.role === 'tool') {
         contents.push({
           role: 'function',
-          parts: [{ functionResponse: { name: msg.toolCallId ?? 'unknown', response: JSON.parse(msg.content) } }],
+          parts: [{ functionResponse: { name: msg.toolName ?? msg.toolCallId ?? 'unknown', response: JSON.parse(msg.content) } }],
         });
       } else {
         contents.push({ role: 'user', parts: [{ text: msg.content }] });
