@@ -101,15 +101,26 @@ function buildResponse(text: string, messages: ConversationMessage[]): Middlewar
     ? (Array.isArray(lastArrayResult) ? lastArrayResult : lastArrayResult.data)
     : undefined;
 
+  // Détecter si le LLM a déjà formaté un tableau markdown dans sa réponse
+  const hasMarkdownTable = /\|.+\|[\r\n]+\|[-:\s|]+\|/.test(text);
+
   // Détecter le type de visualisation demandé par l'IA
   let type_donnees: MiddlewareResponse['type_donnees'] = 'texte';
+  let includeDonnees = false;
 
   if (text.includes('[TABLE]')) {
     type_donnees = 'tableau';
+    includeDonnees = true;
   } else if (text.match(/\[CHART:(bar|line|pie)\]/)) {
     type_donnees = 'graphique';
+    includeDonnees = true;
+  } else if (hasMarkdownTable) {
+    // Le LLM a déjà formaté les données en markdown — ne pas envoyer les données brutes en double
+    type_donnees = 'texte';
+    includeDonnees = false;
   } else if (donnees && Array.isArray(donnees) && donnees.length > 0) {
     type_donnees = 'tableau';
+    includeDonnees = true;
   }
 
   // Nettoyer les marqueurs du texte
@@ -121,6 +132,6 @@ function buildResponse(text: string, messages: ConversationMessage[]): Middlewar
   return {
     texte: cleanText,
     type_donnees,
-    ...(donnees && { donnees }),
+    ...(includeDonnees && donnees && { donnees }),
   };
 }
