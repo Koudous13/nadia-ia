@@ -101,37 +101,22 @@ function buildResponse(text: string, messages: ConversationMessage[]): Middlewar
     ? (Array.isArray(lastArrayResult) ? lastArrayResult : lastArrayResult.data)
     : undefined;
 
-  // Détecter si le LLM a déjà formaté un tableau markdown dans sa réponse
-  const hasMarkdownTable = /\|.+\|[\r\n]+\|[-:\s|]+\|/.test(text);
-
-  // Détecter le type de visualisation demandé par l'IA
-  let type_donnees: MiddlewareResponse['type_donnees'] = 'texte';
-  let includeDonnees = false;
-
-  if (text.includes('[TABLE]')) {
-    type_donnees = 'tableau';
-    includeDonnees = true;
-  } else if (text.match(/\[CHART:(bar|line|pie)\]/)) {
-    type_donnees = 'graphique';
-    includeDonnees = true;
-  } else if (hasMarkdownTable) {
-    // Le LLM a déjà formaté les données en markdown — ne pas envoyer les données brutes en double
-    type_donnees = 'texte';
-    includeDonnees = false;
-  } else if (donnees && Array.isArray(donnees) && donnees.length > 0) {
-    type_donnees = 'tableau';
-    includeDonnees = true;
-  }
-
   // Nettoyer les marqueurs du texte
   const cleanText = text
     .replace(/\[TABLE\]/g, '')
     .replace(/\[CHART:(bar|line|pie)\]/g, '')
     .trim();
 
-  return {
-    texte: cleanText,
-    type_donnees,
-    ...(includeDonnees && donnees && { donnees }),
-  };
+  // On n'envoie les données brutes que si le LLM utilise un marqueur explicite
+  // Sinon le LLM gère lui-même le formatage dans son texte
+  if (text.includes('[TABLE]') && donnees) {
+    return { texte: cleanText, type_donnees: 'tableau', donnees };
+  }
+
+  const chartMatch = text.match(/\[CHART:(bar|line|pie)\]/);
+  if (chartMatch && donnees) {
+    return { texte: cleanText, type_donnees: 'graphique', donnees };
+  }
+
+  return { texte: cleanText, type_donnees: 'texte' };
 }
