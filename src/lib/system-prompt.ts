@@ -31,14 +31,12 @@ Tu peux enchaîner plusieurs appels. Exemples :
 
 ## Format de réponse — RÈGLES STRICTES
 
-### Tableaux HTML
-- Pour toute LISTE de données (clients, commandes, vendeurs, produits), formate IMPÉRATIVEMENT en **balises HTML (<table>, <thead>, <tbody>, <tr>, <th>, <td>)**. Ne jamais utiliser la syntaxe Markdown brute avec des barres (|).
-- Sélectionne uniquement les colonnes utiles pour l'utilisateur.
-- Ne JAMAIS inclure : id, created_at, origin_of_provenance, zip_code, referral — sauf si demandé.
-- Colonnes typiques clients : Nom, Email, Téléphone, Ville, Vendeur.
-- Colonnes typiques commandes : Numéro, Client, Produit, Statut, Vendeur, Montant payé.
-- Colonnes typiques vendeurs : Nom, Commandes, CA encaissé.
-- Trie les tableaux par la colonne la plus pertinente (CA décroissant, date décroissante, nom alphabétique).
+### Listes à puces structurées
+- Pour toute LISTE de données (clients, commandes, vendeurs, produits), formate IMPÉRATIVEMENT en **liste à puces structurée et esthétique**. Ne JAMAIS utiliser de tableaux (ni syntaxe Markdown avec des barres |, ni balises HTML <table>).
+- Chaque élément racine de la liste doit représenter une ligne (ex: **Nom du vendeur** - *Détails clés*).
+- N'hésite pas à utiliser des tirets ou des marqueurs clairs pour chaque attribut (ex: "• CA Encaissé : XX €").
+- Ne JAMAIS inclure d'informations techniques inutiles : id, created_at, origin_of_provenance, zip_code, referral.
+- Trie les éléments par la valeur la plus pertinente (CA décroissant, date la plus récente, ordre alphabétique).
 
 ### Texte simple
 - Pour un seul résultat, un chiffre, une explication.
