@@ -139,82 +139,63 @@ export function NadiaChat() {
   };
 
   return (
-    <div className="flex flex-col h-full relative overflow-hidden"
-      style={{ background: 'linear-gradient(145deg, #eef3fa 0%, #e4ecf7 50%, #dce5f4 100%)' }}
-    >
-      {/* Decorative background shapes */}
+    <div className="flex flex-col h-full relative overflow-hidden bg-slate-50 font-sans">
+      {/* Dynamic Background Blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-20 -right-20 w-64 h-64 bg-blue-200/20 rounded-full blur-3xl" />
-        <div className="absolute -bottom-32 -left-20 w-80 h-80 bg-indigo-200/15 rounded-full blur-3xl" />
-        <div className="absolute top-1/3 right-1/4 w-40 h-40 bg-cyan-200/10 rounded-full blur-2xl" />
+        <div className="bg-blob blob-animate w-[600px] h-[600px] -top-[200px] -right-[100px] bg-blue-200" />
+        <div className="bg-blob blob-animate w-[500px] h-[500px] -bottom-[100px] -left-[100px] bg-indigo-100" style={{ animationDelay: '-5s' }} />
+        <div className="bg-blob blob-animate w-[300px] h-[300px] top-1/3 left-1/4 bg-cyan-100" style={{ animationDelay: '-12s' }} />
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col h-full">
-        {/* Top quick actions & clear history */}
-        <div className="px-8 pt-6 pb-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
+      {/* Content wrapper */}
+      <div className="relative z-10 flex flex-col h-full max-w-6xl mx-auto w-full">
+        {/* Top header area */}
+        <div className="px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                <span className="text-white font-bold text-sm">N</span>
+              </div>
+              <h1 className="text-xl font-bold text-slate-900 tracking-tight">Nadia<span className="text-blue-600">.ai</span></h1>
+            </div>
+            <div className="h-4 w-[1px] bg-slate-200 mx-1" />
             <button
               onClick={() => setIsPromptsManagerOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm border border-blue-100 rounded-full text-[13px] font-semibold text-blue-600 hover:bg-white hover:shadow-md transition-all shadow-sm"
+              className="group flex items-center gap-2 px-4 py-2 bg-white/60 hover:bg-white backdrop-blur-md border border-slate-200/60 rounded-full text-[13px] font-semibold text-slate-600 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm active:scale-95"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg>
+              <svg className="w-4 h-4 text-slate-400 group-hover:text-blue-500 transition-colors" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg>
               Mes Prompts
             </button>
           </div>
+          
           {messages.length > 0 && (
             <button
               onClick={() => {
-                if (window.confirm('Voulez-vous vraiment effacer l\'historique de la conversation ?')) {
+                if (window.confirm('Effacer l\'historique ?')) {
                   setMessages([]);
                   localStorage.removeItem('nadia-chat-history');
                 }
               }}
+              className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
               title="Vider l'historique"
-              className="text-[13px] text-gray-500 hover:text-red-600 transition-colors ml-4 whitespace-nowrap bg-white/60 hover:bg-white/90 px-3.5 py-1.5 rounded-full border border-gray-200 shadow-sm"
             >
-              <span className="flex items-center gap-1.5">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 6h18"></path>
-                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                  <line x1="10" y1="11" x2="10" y2="17"></line>
-                  <line x1="14" y1="11" x2="14" y2="17"></line>
-                </svg>
-                Vider
-              </span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
             </button>
           )}
         </div>
 
-        {/* Chat zone */}
-        <div className="flex-1 overflow-y-auto chat-scroll px-8">
+        {/* Chat area */}
+        <div className="flex-1 overflow-y-auto chat-scroll px-6 space-y-6 pb-4 pt-2">
           {messages.length === 0 ? (
-            /* ===== WELCOME SCREEN ===== */
-            <div className="flex items-center justify-center h-full">
-              <div className="flex items-center gap-10">
-                {/* Welcome bubble */}
-                <div className="max-w-sm">
-                  <div className="bg-white/90 backdrop-blur-sm rounded-3xl px-8 py-7 shadow-xl shadow-blue-900/5 border border-white/60">
-                    <h2 className="text-[26px] font-bold text-[var(--nadia-blue-900)] mb-2 tracking-tight">
-                      Bonjour !
-                    </h2>
-                    <p className="text-[15px] text-[#475569] leading-[1.8]">
-                      Que puis-je{' '}
-                      <span className="font-semibold text-[var(--nadia-blue-600)]">analyser</span>
-                      {' '}ou{' '}
-                      <span className="font-semibold text-[var(--nadia-blue-600)]">faire pour vous</span>
-                      {' '}aujourd&apos;hui ?
-                    </p>
-                  </div>
-
-                  <p className="text-[13px] text-[#94a3b8] mt-4 ml-2 tracking-wide">
-                    En attente d&apos;une instruction...
-                  </p>
-                </div>
-
-                {/* Nadia avatar */}
+            <div className="flex flex-col items-center justify-center h-full animate-fade">
+              <div className="mb-8">
                 <NadiaAvatar size="lg" />
+              </div>
+              <div className="text-center space-y-3 max-w-sm">
+                <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Ravi de vous voir !</h2>
+                <p className="text-slate-500 leading-relaxed text-[15px]">
+                  Je suis Nadia, votre assistante CRM Paperasse. Que souhaitez-vous analyser ou consulter aujourd&apos;hui ?
+                </p>
               </div>
             </div>
           ) : (
