@@ -130,6 +130,10 @@ export function NadiaChat() {
     setCustomPrompts(prev => [prompt, ...prev]);
   };
 
+  const handleUpdatePrompt = (id: string, updatedPrompt: Partial<CustomPrompt>) => {
+    setCustomPrompts(prev => prev.map(p => p.id === id ? { ...p, ...updatedPrompt } : p));
+  };
+
   const handleDeletePrompt = (id: string) => {
     setCustomPrompts(prev => prev.filter(p => p.id !== id));
   };
@@ -275,6 +279,7 @@ export function NadiaChat() {
         <PromptsManager
           prompts={customPrompts}
           onSave={handleSavePrompt}
+          onUpdate={handleUpdatePrompt}
           onDelete={handleDeletePrompt}
           onClose={() => setIsPromptsManagerOpen(false)}
         />
