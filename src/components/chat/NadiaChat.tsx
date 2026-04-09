@@ -1,15 +1,18 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { ChatMessage as ChatMessageType, MiddlewareResponse } from '@/types';
+import { ChatMessage as ChatMessageType, MiddlewareResponse, CustomPrompt } from '@/types';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { QuickActions } from './QuickActions';
 import { NadiaAvatar } from './NadiaAvatar';
+import { PromptsManager } from './PromptsManager';
 
 export function NadiaChat() {
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [customPrompts, setCustomPrompts] = useState<CustomPrompt[]>([]);
+  const [isPromptsManagerOpen, setIsPromptsManagerOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Charger l'historique depuis le localStorage au montage
@@ -27,6 +30,23 @@ export function NadiaChat() {
       }
     }
   }, []);
+
+  // Charger les prompts personnalisés au montage
+  useEffect(() => {
+    const saved = localStorage.getItem('nadia-custom-prompts');
+    if (saved) {
+      try {
+        setCustomPrompts(JSON.parse(saved));
+      } catch (e) {
+        console.error('Erreur lors du chargement des prompts', e);
+      }
+    }
+  }, []);
+
+  // Sauvegarder les prompts dans le localStorage
+  useEffect(() => {
+    localStorage.setItem('nadia-custom-prompts', JSON.stringify(customPrompts));
+  }, [customPrompts]);
 
   // Sauvegarder dans le localStorage à chaque changement de messages
   useEffect(() => {
@@ -101,6 +121,19 @@ export function NadiaChat() {
     sendMessage(prompts[label] || label);
   };
 
+  const handleSavePrompt = (newPrompt: Omit<CustomPrompt, 'id' | 'createdAt'>) => {
+    const prompt: CustomPrompt = {
+      ...newPrompt,
+      id: `prompt-${Date.now()}`,
+      createdAt: Date.now(),
+    };
+    setCustomPrompts(prev => [prompt, ...prev]);
+  };
+
+  const handleDeletePrompt = (id: string) => {
+    setCustomPrompts(prev => prev.filter(p => p.id !== id));
+  };
+
   return (
     <div className="flex flex-col h-full relative overflow-hidden"
       style={{ background: 'linear-gradient(145deg, #eef3fa 0%, #e4ecf7 50%, #dce5f4 100%)' }}
@@ -116,7 +149,16 @@ export function NadiaChat() {
       <div className="relative z-10 flex flex-col h-full">
         {/* Top quick actions & clear history */}
         <div className="px-8 pt-6 pb-4 flex justify-between items-center">
-          <QuickActions onSelect={handleQuickAction} variant="top" />
+          <div className="flex items-center gap-3">
+            <QuickActions onSelect={handleQuickAction} variant="top" />
+            <button
+              onClick={() => setIsPromptsManagerOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm border border-blue-100 rounded-full text-[13px] font-semibold text-blue-600 hover:bg-white hover:shadow-md transition-all shadow-sm"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg>
+              Mes Prompts
+            </button>
+          </div>
           {messages.length > 0 && (
             <button
               onClick={() => {
@@ -198,12 +240,45 @@ export function NadiaChat() {
 
         {/* ===== BOTTOM BAR ===== */}
         <div className="px-8 pb-6 pt-4 space-y-3">
+          {/* Custom prompt buttons */}
+          {customPrompts.length > 0 && (
+            <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar scroll-smooth">
+              {customPrompts.slice(0, 5).map(prompt => (
+                <button
+                  key={prompt.id}
+                  onClick={() => sendMessage(prompt.content)}
+                  className="px-4 py-2 bg-blue-50/50 border border-blue-100 rounded-xl text-[12px] font-medium text-blue-700 hover:bg-blue-100/50 hover:border-blue-200 transition-all whitespace-nowrap shadow-sm"
+                >
+                  {prompt.title}
+                </button>
+              ))}
+              {customPrompts.length > 5 && (
+                <button
+                  onClick={() => setIsPromptsManagerOpen(true)}
+                  className="px-4 py-2 bg-gray-50 border border-gray-100 rounded-xl text-[12px] font-medium text-gray-500 hover:bg-gray-100 transition-all whitespace-nowrap"
+                >
+                  Voir plus...
+                </button>
+              )}
+            </div>
+          )}
+          
           <ChatInput onSend={sendMessage} disabled={isLoading} />
           <div className="flex justify-center">
             <QuickActions onSelect={handleQuickAction} variant="bottom" />
           </div>
         </div>
       </div>
+
+      {/* Prompts Manager Modal */}
+      {isPromptsManagerOpen && (
+        <PromptsManager
+          prompts={customPrompts}
+          onSave={handleSavePrompt}
+          onDelete={handleDeletePrompt}
+          onClose={() => setIsPromptsManagerOpen(false)}
+        />
+      )}
     </div>
   );
 }

@@ -57,3 +57,11 @@ export interface LLMResponse {
   toolCalls?: ToolCall[];
   finishReason: 'stop' | 'tool_calls' | 'error';
 }
+
+// Prompts personnalisés
+export interface CustomPrompt {
+  id: string;
+  title: string;
+  content: string;
+  createdAt: number;
+}
