@@ -12,6 +12,31 @@ export function NadiaChat() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Charger l'historique depuis le localStorage au montage
+  useEffect(() => {
+    const saved = localStorage.getItem('nadia-chat-history');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setMessages(parsed.map((m: any) => ({
+          ...m,
+          timestamp: new Date(m.timestamp)
+        })));
+      } catch (e) {
+        console.error('Erreur lors du chargement de l\'historique', e);
+      }
+    }
+  }, []);
+
+  // Sauvegarder dans le localStorage à chaque changement de messages
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem('nadia-chat-history', JSON.stringify(messages));
+    } else {
+      localStorage.removeItem('nadia-chat-history');
+    }
+  }, [messages]);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -89,9 +114,32 @@ export function NadiaChat() {
 
       {/* Content */}
       <div className="relative z-10 flex flex-col h-full">
-        {/* Top quick actions */}
-        <div className="px-8 pt-6 pb-4">
+        {/* Top quick actions & clear history */}
+        <div className="px-8 pt-6 pb-4 flex justify-between items-center">
           <QuickActions onSelect={handleQuickAction} variant="top" />
+          {messages.length > 0 && (
+            <button
+              onClick={() => {
+                if (window.confirm('Voulez-vous vraiment effacer l\'historique de la conversation ?')) {
+                  setMessages([]);
+                  localStorage.removeItem('nadia-chat-history');
+                }
+              }}
+              title="Vider l'historique"
+              className="text-[13px] text-gray-500 hover:text-red-600 transition-colors ml-4 whitespace-nowrap bg-white/60 hover:bg-white/90 px-3.5 py-1.5 rounded-full border border-gray-200 shadow-sm"
+            >
+              <span className="flex items-center gap-1.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 6h18"></path>
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+                Vider
+              </span>
+            </button>
+          )}
         </div>
 
         {/* Chat zone */}
