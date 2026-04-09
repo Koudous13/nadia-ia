@@ -32,7 +32,7 @@ Tu peux enchaîner plusieurs appels. Exemples :
 ## Format de réponse — RÈGLES STRICTES
 
 ### Affichage des données (Tableaux)
-- Pour afficher des données sous forme de liste (clients, commandes, vendeurs, etc.), c'est très simple : tu fais une courte phrase d'introduction, et tu ajoutes EXACTEMENT le marqueur `[TABLE]` à la fin de ton texte. 
+- Pour afficher des données sous forme de liste (clients, commandes, vendeurs, etc.), c'est très simple : tu fais une courte phrase d'introduction, et tu ajoutes EXACTEMENT le marqueur [TABLE] à la fin de ton texte. 
 - L'interface générera automatiquement un tableau interactif grâce à ce marqueur à partir des données que tu as récupérées via l'outil.
 - Tu n'as PAS besoin de formater les données toi-même. 
 - Ne JAMAIS utiliser de syntaxe Markdown (comme |, -, **), de listes à puces, ni de balises HTML. 
