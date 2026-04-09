@@ -154,7 +154,6 @@ export function NadiaChat() {
         {/* Top quick actions & clear history */}
         <div className="px-8 pt-6 pb-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <QuickActions onSelect={handleQuickAction} variant="top" />
             <button
               onClick={() => setIsPromptsManagerOpen(true)}
               className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm border border-blue-100 rounded-full text-[13px] font-semibold text-blue-600 hover:bg-white hover:shadow-md transition-all shadow-sm"
