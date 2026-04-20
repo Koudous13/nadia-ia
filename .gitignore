@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local SQLite dump (obsolète — remplacé par MySQL live)
+/data/paperasse.db*

@@ -1,54 +1,36 @@
-import initSqlJs, { Database } from 'sql.js';
-import { readFileSync } from 'fs';
-import { resolve, join } from 'path';
+import mysql, { Pool } from 'mysql2/promise';
 
-const DB_PATH = resolve(process.cwd(), 'data', 'paperasse.db');
+let _pool: Pool | null = null;
 
-let _db: Database | null = null;
-let _initPromise: Promise<Database> | null = null;
+function getPool(): Pool {
+  if (_pool) return _pool;
 
-async function initDb(): Promise<Database> {
-  const SQL = await initSqlJs({
-    locateFile: (file: string) => {
-      // On Vercel, node_modules may not be at cwd — use require.resolve to find the actual path
-      try {
-        return join(require.resolve('sql.js').replace(/sql\.js[/\\].*$/, 'sql.js'), '..', 'dist', file);
-      } catch {
-        return join(process.cwd(), 'node_modules', 'sql.js', 'dist', file);
-      }
-    },
+  const { DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT } = process.env;
+  if (!DB_HOST || !DB_USER || !DB_PASSWORD || !DB_NAME) {
+    throw new Error('Variables DB_HOST/DB_USER/DB_PASSWORD/DB_NAME manquantes dans .env.local');
+  }
+
+  _pool = mysql.createPool({
+    host: DB_HOST,
+    port: DB_PORT ? Number(DB_PORT) : 3306,
+    user: DB_USER,
+    password: DB_PASSWORD,
+    database: DB_NAME,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+    dateStrings: true,
+    decimalNumbers: true,
   });
-  const buffer = readFileSync(DB_PATH);
-  return new SQL.Database(buffer);
+
+  return _pool;
 }
 
-export async function getDb(): Promise<Database> {
-  if (_db) return _db;
-  if (!_initPromise) {
-    _initPromise = initDb().then(db => {
-      _db = db;
-      return db;
-    });
-  }
-  return _initPromise;
-}
-
-// Helper: exécute une requête et retourne un tableau d'objets
 export async function queryAll(sql: string, params: unknown[] = []): Promise<Record<string, unknown>[]> {
-  const db = await getDb();
-  const stmt = db.prepare(sql);
-  stmt.bind(params as initSqlJs.BindParams);
-
-  const results: Record<string, unknown>[] = [];
-  while (stmt.step()) {
-    const row = stmt.getAsObject();
-    results.push(row as Record<string, unknown>);
-  }
-  stmt.free();
-  return results;
+  const [rows] = await getPool().query(sql, params);
+  return rows as Record<string, unknown>[];
 }
 
-// Helper: exécute une requête et retourne le premier résultat
 export async function queryOne(sql: string, params: unknown[] = []): Promise<Record<string, unknown> | null> {
   const rows = await queryAll(sql, params);
   return rows[0] || null;
