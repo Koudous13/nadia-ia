@@ -9,6 +9,7 @@ import { QuickActions } from './QuickActions';
 import { Sidebar } from './Sidebar';
 import { TopHeader } from './TopHeader';
 import { PromptsManager } from './PromptsManager';
+import { promptFor } from '@/lib/nav-prompts';
 
 export function NadiaChat() {
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
@@ -113,15 +114,11 @@ export function NadiaChat() {
 
   const handleQuickAction = (label: string) => {
     setActiveTab(label);
-    const prompts: Record<string, string> = {
-      "CA aujourd'hui": "Quel est le chiffre d'affaires d'aujourd'hui ?",
-      'CA mois': "Quel est le chiffre d'affaires de ce mois ?",
-      'Performance équipe': "Montre-moi la performance de l'équipe.",
-      Paiements: 'Affiche le résumé des paiements.',
-      Alertes: 'Y a-t-il des alertes ou commandes en retard ?',
-      Marketing: 'Montre-moi les statistiques marketing.',
-    };
-    sendMessage(prompts[label] || label);
+    sendMessage(promptFor(label));
+  };
+
+  const handleNavigate = (label: string) => {
+    sendMessage(promptFor(label));
   };
 
   const handleSavePrompt = (newPrompt: Omit<CustomPrompt, 'id' | 'createdAt'>) => {
@@ -133,7 +130,7 @@ export function NadiaChat() {
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30 font-sans overflow-hidden">
-      <Sidebar />
+      <Sidebar onNavigate={handleNavigate} />
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <TopHeader userName="Ali" notificationCount={3} />
@@ -218,7 +215,7 @@ function WelcomeHero() {
         {/* Illustration */}
         <div className="relative w-full aspect-[4/3] max-w-[520px] mx-auto">
           <Image
-            src="/nadia-illustration.jpg"
+            src="/nadia-illustration.png"
             alt="Nadia"
             fill
             priority

@@ -81,35 +81,40 @@ const MAIN_ITEMS = [
   { id: 'paiements', label: 'Paiements', icon: Icon.Payments },
   { id: 'alertes', label: 'Alertes', icon: Icon.Alert },
   { id: 'marketing', label: 'Marketing', icon: Icon.Marketing },
-];
+] as const;
 
-export function Sidebar() {
-  const [active, setActive] = useState('assistant');
+interface SidebarProps {
+  activeId?: string;
+  onNavigate: (label: string) => void;
+}
+
+export function Sidebar({ activeId = 'assistant', onNavigate }: SidebarProps) {
   const [expanded, setExpanded] = useState(true);
 
   return (
     <aside className="w-[260px] shrink-0 bg-[#1E3A5F] text-white flex flex-col h-screen">
-      {/* Logo */}
       <div className="px-5 py-5">
-        <div className="flex items-center gap-2.5">
+        <button
+          onClick={() => onNavigate('Assistant IA')}
+          className="flex items-center gap-2.5 w-full text-left hover:opacity-90 transition-opacity"
+        >
           <Icon.Logo className="w-8 h-8 text-white" />
           <div className="leading-tight">
             <div className="font-bold text-[19px] tracking-tight">Paperasse</div>
             <div className="text-[9px] text-white/50 tracking-[0.15em] uppercase">Assistance administrative</div>
           </div>
-        </div>
+        </button>
       </div>
 
-      {/* Main menu */}
       <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto">
         {MAIN_ITEMS.map((item) => {
           const IconCmp = item.icon;
-          const isActive = active === item.id;
+          const isActive = activeId === item.id;
           return (
             <button
               key={item.id}
-              onClick={() => setActive(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-medium transition-colors ${
+              onClick={() => onNavigate(item.label)}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-medium transition-colors cursor-pointer ${
                 isActive ? 'bg-white/10 text-white' : 'text-white/80 hover:bg-white/5 hover:text-white'
               }`}
             >
@@ -119,14 +124,13 @@ export function Sidebar() {
           );
         })}
 
-        {/* Section divider */}
         <div className="pt-6 pb-2 px-3">
           <div className="text-[10px] text-white/40 tracking-[0.2em] uppercase font-semibold">Utilitaires</div>
         </div>
 
         <button
           onClick={() => setExpanded((v) => !v)}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-medium text-white/80 hover:bg-white/5 hover:text-white transition-colors"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-medium text-white/80 hover:bg-white/5 hover:text-white transition-colors cursor-pointer"
         >
           <Icon.Sparkles className="w-[18px] h-[18px] shrink-0" />
           <div className="flex-1 text-left leading-tight">
@@ -137,9 +141,11 @@ export function Sidebar() {
         </button>
       </nav>
 
-      {/* Bottom pill */}
       <div className="p-4">
-        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+        <button
+          onClick={() => onNavigate('Actions recommandées')}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+        >
           <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center">
             <Icon.Sparkles className="w-4 h-4" />
           </div>
