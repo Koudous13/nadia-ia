@@ -16,7 +16,7 @@ import { promptFor } from '@/lib/nav-prompts';
 export function ChatShell() {
   const router = useRouter();
   const pathname = usePathname();
-  const { messages, isLoading, customPrompts, sendMessage, savePrompt, updatePrompt, deletePrompt } = useChat();
+  const { messages, isLoading, customPrompts, sendMessage, clearMessages, savePrompt, updatePrompt, deletePrompt } = useChat();
   const [isPromptsManagerOpen, setIsPromptsManagerOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const lastNavHandled = useRef<string | null>(null);
@@ -51,8 +51,14 @@ export function ChatShell() {
       <Sidebar onNavigate={handleShortcut} activePath={pathname} />
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <TopHeader userName="Ali" notificationCount={3} />
-        <QuickActions onSelect={handleShortcut} variant="tabs" activeLabel={activeLabel} />
+        <TopHeader
+          userName="Ali"
+          notificationCount={3}
+          onClearConversation={() => {
+            if (messages.length === 0) return;
+            if (window.confirm('Vider la conversation ?')) clearMessages();
+          }}
+        />
 
         <div className="flex-1 overflow-y-auto chat-scroll px-8">
           {messages.length === 0 ? (

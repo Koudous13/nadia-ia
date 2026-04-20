@@ -4,9 +4,10 @@ interface TopHeaderProps {
   userName?: string;
   notificationCount?: number;
   onBack?: () => void;
+  onClearConversation?: () => void;
 }
 
-export function TopHeader({ userName = 'Ali', notificationCount = 3, onBack }: TopHeaderProps) {
+export function TopHeader({ userName = 'Ali', notificationCount = 3, onBack, onClearConversation }: TopHeaderProps) {
   return (
     <div className="flex items-center justify-between px-8 pt-6 pb-4">
       {/* Title */}
@@ -35,6 +36,23 @@ export function TopHeader({ userName = 'Ali', notificationCount = 3, onBack }: T
           </span>
           <span className="text-[13px] font-semibold">En ligne</span>
         </div>
+
+        {/* Clear conversation */}
+        {onClearConversation && (
+          <button
+            onClick={onClearConversation}
+            title="Vider la conversation"
+            aria-label="Vider la conversation"
+            className="w-10 h-10 flex items-center justify-center bg-white border border-slate-200 rounded-full text-slate-500 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors"
+          >
+            <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 6h18" />
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              <path d="M10 11v6M14 11v6" />
+            </svg>
+          </button>
+        )}
 
         {/* User name pill */}
         <button className="flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-200 rounded-full hover:border-slate-300 transition-colors">
