@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { routeForLabel } from '@/lib/nav-routes';
 
 type IconProps = { className?: string };
 
@@ -84,11 +85,11 @@ const MAIN_ITEMS = [
 ] as const;
 
 interface SidebarProps {
-  activeId?: string;
+  activePath?: string;
   onNavigate: (label: string) => void;
 }
 
-export function Sidebar({ activeId = 'assistant', onNavigate }: SidebarProps) {
+export function Sidebar({ activePath = '/', onNavigate }: SidebarProps) {
   const [expanded, setExpanded] = useState(true);
 
   return (
@@ -109,7 +110,7 @@ export function Sidebar({ activeId = 'assistant', onNavigate }: SidebarProps) {
       <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto">
         {MAIN_ITEMS.map((item) => {
           const IconCmp = item.icon;
-          const isActive = activeId === item.id;
+          const isActive = activePath === routeForLabel(item.label);
           return (
             <button
               key={item.id}
