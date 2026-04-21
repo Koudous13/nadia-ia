@@ -1,4 +1,5 @@
 import { queryAll, queryOne } from './database';
+import { safeSelect, listTables, describeTables } from './safe-sql';
 
 const PERSON_TYPE = 'App\\Models\\Person';
 
@@ -363,11 +364,14 @@ export async function executeToolCall(
     }
 
     case 'get_top_vendors': {
+      const by = args.by === 'order_date' ? 'order_date' : 'payment_date';
+      const dateCol = by === 'order_date' ? 'o.created_at' : 'pay.created_at';
+
       const conditions: string[] = ['o.deleted_at IS NULL'];
       const params: unknown[] = [];
 
-      if (args.date_from) { conditions.push(`o.created_at >= ?`); params.push(args.date_from); }
-      if (args.date_to) { conditions.push(`o.created_at <= ?`); params.push(args.date_to + ' 23:59:59'); }
+      if (args.date_from) { conditions.push(`${dateCol} >= ?`); params.push(args.date_from); }
+      if (args.date_to) { conditions.push(`${dateCol} <= ?`); params.push(args.date_to + ' 23:59:59'); }
 
       const limit = Number(args.limit) || 10;
       params.push(limit);
@@ -397,6 +401,114 @@ export async function executeToolCall(
         FROM orders o WHERE ${conditions.join(' AND ')}
         GROUP BY o.statuts ORDER BY count DESC
       `, params);
+    }
+
+    // ──── Performance vendeurs ────
+
+    case 'get_vendors_performance': {
+      const dateFrom = args.date_from ? String(args.date_from) : null;
+      const dateTo = args.date_to ? String(args.date_to) + ' 23:59:59' : null;
+
+      return queryAll(`
+        SELECT u.id, u.name AS vendeur,
+               COUNT(DISTINCT o.id) AS nb_commandes,
+               SUM(CASE WHEN o.statuts = 'Terminée' THEN 1 ELSE 0 END) AS nb_terminees,
+               SUM(CASE WHEN o.is_payed = 1 THEN 1 ELSE 0 END) AS nb_payees,
+               ROUND(IFNULL((
+                 SELECT SUM(CAST(pay.amount->>'$.amount' AS DECIMAL(20,2))) / 100.0
+                 FROM payments pay
+                 JOIN orders o2 ON pay.order_id = o2.id
+                 WHERE o2.user_id = u.id AND o2.deleted_at IS NULL
+                   AND (? IS NULL OR pay.created_at >= ?)
+                   AND (? IS NULL OR pay.created_at <= ?)
+               ), 0), 2) AS ca_encaisse
+        FROM users u
+        LEFT JOIN orders o ON o.user_id = u.id
+          AND o.deleted_at IS NULL
+          AND (? IS NULL OR o.created_at >= ?)
+          AND (? IS NULL OR o.created_at <= ?)
+        WHERE u.deleted_at IS NULL AND u.hidden = 0
+        GROUP BY u.id, u.name
+        HAVING nb_commandes > 0 OR ca_encaisse > 0
+        ORDER BY ca_encaisse DESC, nb_commandes DESC
+      `, [dateFrom, dateFrom, dateTo, dateTo, dateFrom, dateFrom, dateTo, dateTo]);
+    }
+
+    case 'get_orders_by_vendor_status': {
+      const conditions: string[] = ['o.deleted_at IS NULL'];
+      const params: unknown[] = [];
+
+      if (args.date_from) { conditions.push(`o.created_at >= ?`); params.push(args.date_from); }
+      if (args.date_to) { conditions.push(`o.created_at <= ?`); params.push(args.date_to + ' 23:59:59'); }
+      if (args.status) { conditions.push(`o.statuts = ?`); params.push(args.status); }
+
+      if (args.status) {
+        return queryAll(`
+          SELECT u.id, u.name AS vendeur, COUNT(*) AS count
+          FROM orders o
+          JOIN users u ON o.user_id = u.id
+          WHERE ${conditions.join(' AND ')}
+          GROUP BY u.id, u.name
+          ORDER BY count DESC
+        `, params);
+      }
+
+      return queryAll(`
+        SELECT u.name AS vendeur, o.statuts AS status, COUNT(*) AS count
+        FROM orders o
+        JOIN users u ON o.user_id = u.id
+        WHERE ${conditions.join(' AND ')}
+        GROUP BY u.id, u.name, o.statuts
+        ORDER BY u.name, count DESC
+      `, params);
+    }
+
+    case 'get_vendor_chat_stats': {
+      const dateFrom = args.date_from ? String(args.date_from) : null;
+      const dateTo = args.date_to ? String(args.date_to) + ' 23:59:59' : null;
+      const minResponses = Math.max(1, Number(args.min_responses) || 5);
+
+      return queryAll(`
+        WITH ranked AS (
+          SELECT cm.conversation_id, cm.user_id AS author_id, cm.created_at AS msg_at,
+                 LAG(cm.user_id)    OVER (PARTITION BY cm.conversation_id ORDER BY cm.created_at) AS prev_user_id,
+                 LAG(cm.created_at) OVER (PARTITION BY cm.conversation_id ORDER BY cm.created_at) AS prev_at
+          FROM conversation_messages cm
+          WHERE cm.deleted_at IS NULL
+            AND (? IS NULL OR cm.created_at >= ?)
+            AND (? IS NULL OR cm.created_at <= ?)
+        )
+        SELECT u.id, u.name AS vendeur,
+               COUNT(*) AS nb_reponses,
+               ROUND(AVG(CASE WHEN TIMESTAMPDIFF(MINUTE, prev_at, msg_at) < 1440
+                              THEN TIMESTAMPDIFF(MINUTE, prev_at, msg_at) END), 1) AS delai_moyen_min_sous24h,
+               ROUND(AVG(TIMESTAMPDIFF(MINUTE, prev_at, msg_at)), 1) AS delai_moyen_min_brut
+        FROM ranked r
+        JOIN users u ON r.author_id = u.id
+        WHERE prev_user_id IS NOT NULL
+          AND prev_user_id <> r.author_id
+          AND TIMESTAMPDIFF(MINUTE, prev_at, msg_at) >= 0
+        GROUP BY u.id, u.name
+        HAVING nb_reponses >= ?
+        ORDER BY delai_moyen_min_sous24h ASC
+      `, [dateFrom, dateFrom, dateTo, dateTo, minResponses]);
+    }
+
+    // ──── Escape hatch SQL ────
+
+    case 'list_tables': {
+      return listTables();
+    }
+
+    case 'describe_tables': {
+      const raw = String(args.tables ?? '');
+      const tables = raw.split(',').map((t) => t.trim()).filter(Boolean);
+      return describeTables(tables);
+    }
+
+    case 'run_sql': {
+      const sql = String(args.sql ?? '');
+      return safeSelect(sql);
     }
 
     default:

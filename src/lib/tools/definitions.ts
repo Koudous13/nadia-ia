@@ -163,13 +163,14 @@ export const crmTools: ToolDefinition[] = [
   },
   {
     name: 'get_top_vendors',
-    description: "Classement des meilleurs vendeurs par CA encaissé sur une période.",
+    description: "Classement des meilleurs vendeurs par CA encaissé sur une période. Par défaut, filtre sur la date des paiements (CA réellement encaissé dans la période).",
     parameters: {
       type: 'object',
       properties: {
         date_from: { type: 'string', description: "Date de début YYYY-MM-DD (optionnel)" },
         date_to: { type: 'string', description: "Date de fin YYYY-MM-DD (optionnel)" },
         limit: { type: 'string', description: "Nombre de vendeurs à retourner (défaut: 10)" },
+        by: { type: 'string', enum: ['payment_date', 'order_date'], description: "Base du filtre date : 'payment_date' (par défaut, CA encaissé dans la période) ou 'order_date' (commandes créées dans la période)." },
       },
     },
   },
@@ -182,6 +183,72 @@ export const crmTools: ToolDefinition[] = [
         date_from: { type: 'string', description: "Date de début YYYY-MM-DD (optionnel)" },
         date_to: { type: 'string', description: "Date de fin YYYY-MM-DD (optionnel)" },
       },
+    },
+  },
+
+  // ──── Performance vendeurs (analytique avancé) ────
+  {
+    name: 'get_vendors_performance',
+    description: "Rapport de performance complet par vendeur : nb commandes, nb terminées, nb payées, CA encaissé. Optionnel : période.",
+    parameters: {
+      type: 'object',
+      properties: {
+        date_from: { type: 'string', description: "Date de début YYYY-MM-DD (optionnel)" },
+        date_to: { type: 'string', description: "Date de fin YYYY-MM-DD (optionnel)" },
+      },
+    },
+  },
+  {
+    name: 'get_orders_by_vendor_status',
+    description: "Comptage des commandes croisé vendeur × statut. Utile pour classer les vendeurs par un statut précis (ex: 'Terminée').",
+    parameters: {
+      type: 'object',
+      properties: {
+        date_from: { type: 'string', description: "Date de début YYYY-MM-DD (optionnel)" },
+        date_to: { type: 'string', description: "Date de fin YYYY-MM-DD (optionnel)" },
+        status: { type: 'string', description: "Si fourni, retourne juste le comptage pour ce statut (tri par count DESC)." },
+      },
+    },
+  },
+  {
+    name: 'get_vendor_chat_stats',
+    description: "Statistiques de réactivité des vendeurs dans les conversations internes (délai moyen entre 2 messages consécutifs d'auteurs différents).",
+    parameters: {
+      type: 'object',
+      properties: {
+        date_from: { type: 'string', description: "Date de début YYYY-MM-DD (optionnel)" },
+        date_to: { type: 'string', description: "Date de fin YYYY-MM-DD (optionnel)" },
+        min_responses: { type: 'string', description: "Seuil minimum de réponses pour apparaître dans le classement (défaut 5)." },
+      },
+    },
+  },
+
+  // ──── Escape hatch : SQL libre en lecture seule ────
+  {
+    name: 'list_tables',
+    description: "Liste toutes les tables disponibles avec une estimation du nombre de lignes. À utiliser avant `run_sql` pour découvrir le schéma.",
+    parameters: { type: 'object', properties: {} },
+  },
+  {
+    name: 'describe_tables',
+    description: "Décrit les colonnes (nom, type, nullable, clé) d'une ou plusieurs tables. À utiliser pour construire une requête `run_sql` valide.",
+    parameters: {
+      type: 'object',
+      properties: {
+        tables: { type: 'string', description: "Noms de tables séparés par des virgules (ex: 'orders,payments,users')." },
+      },
+      required: ['tables'],
+    },
+  },
+  {
+    name: 'run_sql',
+    description: "Exécute une requête SQL SELECT arbitraire en lecture seule. Utiliser UNIQUEMENT si aucun autre outil ne convient. Règles : SELECT/WITH uniquement, pas de point-virgule, LIMIT forcé à 500, timeout 10 s, tables sensibles (auth/jobs/télémétrie) bloquées. Fournir du SQL MySQL valide.",
+    parameters: {
+      type: 'object',
+      properties: {
+        sql: { type: 'string', description: "Requête SQL SELECT (ou WITH). Doit être compilable MySQL 8. Pas de point-virgule final." },
+      },
+      required: ['sql'],
     },
   },
 ];

@@ -7,7 +7,7 @@ import { MiddlewareResponse } from '@/types';
 
 export const maxDuration = 30;
 
-const MAX_TOOL_ROUNDS = 5;
+const MAX_TOOL_ROUNDS = 8;
 
 export async function POST(request: NextRequest) {
   try {
