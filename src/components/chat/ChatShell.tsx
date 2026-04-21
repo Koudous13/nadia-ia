@@ -2,21 +2,19 @@
 
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useChat } from './ChatProvider';
 import { Sidebar } from './Sidebar';
 import { TopHeader } from './TopHeader';
 import { ChatInput } from './ChatInput';
 import { ChatMessage } from './ChatMessage';
-import { PromptsManager } from './PromptsManager';
 import { labelForRoute, routeForLabel } from '@/lib/nav-routes';
 import { promptFor } from '@/lib/nav-prompts';
 
 export function ChatShell() {
   const router = useRouter();
   const pathname = usePathname();
-  const { messages, isLoading, customPrompts, sendMessage, clearMessages, savePrompt, updatePrompt, deletePrompt } = useChat();
-  const [isPromptsManagerOpen, setIsPromptsManagerOpen] = useState(false);
+  const { messages, isLoading, sendMessage, clearMessages } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const lastNavHandled = useRef<string | null>(null);
 
@@ -73,42 +71,12 @@ export function ChatShell() {
           )}
         </div>
 
-        <div className="px-8 pb-6 pt-3 space-y-3">
-          {customPrompts.length > 0 && (
-            <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar max-w-4xl mx-auto w-full">
-              {customPrompts.slice(0, 5).map((prompt) => (
-                <button
-                  key={prompt.id}
-                  onClick={() => sendMessage(prompt.content)}
-                  className="px-4 py-2 bg-blue-50 border border-blue-100 rounded-xl text-[12px] font-medium text-blue-700 hover:bg-blue-100 transition-all whitespace-nowrap"
-                >
-                  {prompt.title}
-                </button>
-              ))}
-              <button
-                onClick={() => setIsPromptsManagerOpen(true)}
-                className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[12px] font-medium text-slate-500 hover:bg-slate-50 transition-all whitespace-nowrap"
-              >
-                + Gérer
-              </button>
-            </div>
-          )}
-
+        <div className="px-8 pb-6 pt-3">
           <div className="max-w-4xl mx-auto w-full">
             <ChatInput onSend={sendMessage} disabled={isLoading} />
           </div>
         </div>
       </div>
-
-      {isPromptsManagerOpen && (
-        <PromptsManager
-          prompts={customPrompts}
-          onSave={savePrompt}
-          onUpdate={updatePrompt}
-          onDelete={deletePrompt}
-          onClose={() => setIsPromptsManagerOpen(false)}
-        />
-      )}
     </div>
   );
 }
