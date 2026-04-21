@@ -57,7 +57,6 @@ export function ChatShell() {
             if (messages.length === 0) return;
             if (window.confirm('Vider la conversation ?')) clearMessages();
           }}
-          onOpenPrompts={() => setIsPromptsManagerOpen(true)}
         />
 
         <div className="flex-1 overflow-y-auto chat-scroll px-8">

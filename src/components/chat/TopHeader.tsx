@@ -5,10 +5,9 @@ interface TopHeaderProps {
   notificationCount?: number;
   onBack?: () => void;
   onClearConversation?: () => void;
-  onOpenPrompts?: () => void;
 }
 
-export function TopHeader({ userName = 'Ali', notificationCount = 3, onBack, onClearConversation, onOpenPrompts }: TopHeaderProps) {
+export function TopHeader({ userName = 'Ali', notificationCount = 3, onBack, onClearConversation }: TopHeaderProps) {
   return (
     <div className="flex items-center justify-between px-8 pt-6 pb-4">
       {/* Title */}
@@ -54,21 +53,6 @@ export function TopHeader({ userName = 'Ali', notificationCount = 3, onBack, onC
             </svg>
           </button>
         )}
-
-        {/* My prompts */}
-        <button
-          type="button"
-          onClick={onOpenPrompts}
-          className="flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-200 rounded-full hover:border-slate-300 transition-colors"
-        >
-          <svg className="w-4 h-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-            <polyline points="14 2 14 8 20 8" />
-            <line x1="9" y1="13" x2="15" y2="13" />
-            <line x1="9" y1="17" x2="15" y2="17" />
-          </svg>
-          <span className="text-[13px] font-medium text-slate-700">Mes prompts</span>
-        </button>
 
         {/* Notifications */}
         <button className="relative w-10 h-10 flex items-center justify-center bg-white border border-slate-200 rounded-full hover:border-slate-300 transition-colors">
