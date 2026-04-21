@@ -6,7 +6,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useChat } from './ChatProvider';
 import { Sidebar } from './Sidebar';
 import { TopHeader } from './TopHeader';
-import { QuickActions } from './QuickActions';
 import { ChatInput } from './ChatInput';
 import { ChatMessage } from './ChatMessage';
 import { PromptsManager } from './PromptsManager';
@@ -58,6 +57,7 @@ export function ChatShell() {
             if (messages.length === 0) return;
             if (window.confirm('Vider la conversation ?')) clearMessages();
           }}
+          onOpenPrompts={() => setIsPromptsManagerOpen(true)}
         />
 
         <div className="flex-1 overflow-y-auto chat-scroll px-8">
@@ -97,9 +97,6 @@ export function ChatShell() {
 
           <div className="max-w-4xl mx-auto w-full">
             <ChatInput onSend={sendMessage} disabled={isLoading} />
-          </div>
-          <div className="max-w-4xl mx-auto w-full">
-            <QuickActions onSelect={handleShortcut} variant="pills" />
           </div>
         </div>
       </div>

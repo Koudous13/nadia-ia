@@ -5,9 +5,10 @@ interface TopHeaderProps {
   notificationCount?: number;
   onBack?: () => void;
   onClearConversation?: () => void;
+  onOpenPrompts?: () => void;
 }
 
-export function TopHeader({ userName = 'Ali', notificationCount = 3, onBack, onClearConversation }: TopHeaderProps) {
+export function TopHeader({ userName = 'Ali', notificationCount = 3, onBack, onClearConversation, onOpenPrompts }: TopHeaderProps) {
   return (
     <div className="flex items-center justify-between px-8 pt-6 pb-4">
       {/* Title */}
@@ -54,13 +55,19 @@ export function TopHeader({ userName = 'Ali', notificationCount = 3, onBack, onC
           </button>
         )}
 
-        {/* User name pill */}
-        <button className="flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-200 rounded-full hover:border-slate-300 transition-colors">
+        {/* My prompts */}
+        <button
+          type="button"
+          onClick={onOpenPrompts}
+          className="flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-200 rounded-full hover:border-slate-300 transition-colors"
+        >
           <svg className="w-4 h-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="4" width="18" height="16" rx="2" />
-            <path d="M7 4v-2M17 4v-2M3 10h18" />
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="9" y1="13" x2="15" y2="13" />
+            <line x1="9" y1="17" x2="15" y2="17" />
           </svg>
-          <span className="text-[13px] font-medium text-slate-700">{userName}</span>
+          <span className="text-[13px] font-medium text-slate-700">Mes prompts</span>
         </button>
 
         {/* Notifications */}
@@ -80,6 +87,22 @@ export function TopHeader({ userName = 'Ali', notificationCount = 3, onBack, onC
         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-100 to-orange-200 ring-2 ring-white shadow-sm overflow-hidden flex items-center justify-center">
           <span className="text-sm font-bold text-orange-700">{userName.charAt(0).toUpperCase()}</span>
         </div>
+
+        {/* Logout */}
+        <form action="/auth/signout" method="post">
+          <button
+            type="submit"
+            title="Se déconnecter"
+            aria-label="Se déconnecter"
+            className="w-10 h-10 flex items-center justify-center bg-white border border-slate-200 rounded-full text-slate-500 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors"
+          >
+            <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </button>
+        </form>
       </div>
     </div>
   );
