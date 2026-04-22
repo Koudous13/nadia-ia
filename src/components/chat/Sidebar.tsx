@@ -89,11 +89,11 @@ interface SidebarProps {
   onNavigate: (label: string) => void;
 }
 
-export function Sidebar({ activePath = '/', onNavigate }: SidebarProps) {
-  const [expanded, setExpanded] = useState(true);
+export function Sidebar({ activePath = '/', onNavigate, isExpanded = true, onToggle }: SidebarProps & { isExpanded?: boolean; onToggle?: () => void }) {
+  // Use the passed isExpanded value instead of internal state
 
   return (
-    <aside className="w-[260px] shrink-0 bg-[#1E3A5F] text-white flex flex-col h-screen">
+    <aside className="w-full md:w-64 shrink-0 bg-[#1E3A5F] text-white flex flex-col h-screen">
       <div className="px-5 py-5">
         <button
           onClick={() => onNavigate('Assistant IA')}
@@ -120,7 +120,7 @@ export function Sidebar({ activePath = '/', onNavigate }: SidebarProps) {
               }`}
             >
               <IconCmp className="w-[18px] h-[18px] shrink-0" />
-              <span>{item.label}</span>
+    <span className="hidden sm:inline">{item.label}</span>
             </button>
           );
         })}
@@ -129,17 +129,6 @@ export function Sidebar({ activePath = '/', onNavigate }: SidebarProps) {
           <div className="text-[10px] text-white/40 tracking-[0.2em] uppercase font-semibold">Utilitaires</div>
         </div>
 
-        <button
-          onClick={() => setExpanded((v) => !v)}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-medium text-white/80 hover:bg-white/5 hover:text-white transition-colors cursor-pointer"
-        >
-          <Icon.Sparkles className="w-[18px] h-[18px] shrink-0" />
-          <div className="flex-1 text-left leading-tight">
-            <div>Actions</div>
-            <div className="text-[11px] text-white/50">recommandées</div>
-          </div>
-          <Icon.Chevron className={`w-4 h-4 transition-transform ${expanded ? 'rotate-180' : ''}`} />
-        </button>
       </nav>
 
       <div className="p-4">

@@ -44,7 +44,7 @@ export function ChatShell() {
   };
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30 font-sans overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30 font-sans overflow-hidden sm:flex-row">
       <Sidebar onNavigate={handleShortcut} activePath={pathname} />
 
       <div className="flex-1 flex flex-col overflow-hidden">
