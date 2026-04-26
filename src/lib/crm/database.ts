@@ -17,7 +17,10 @@ function getPool(): Pool {
     password: DB_PASSWORD,
     database: DB_NAME,
     waitForConnections: true,
-    connectionLimit: 10,
+    // La DB CRM applique max_user_connections=5 sur ai_user.
+    // On reste sous la limite pour laisser de la place aux autres clients
+    // (dev server + scripts ad-hoc) sans déclencher ER_USER_LIMIT_REACHED.
+    connectionLimit: 3,
     queueLimit: 0,
     dateStrings: true,
     decimalNumbers: true,
