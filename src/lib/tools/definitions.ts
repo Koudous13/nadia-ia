@@ -264,12 +264,12 @@ export const crmTools: ToolDefinition[] = [
   },
   {
     name: 'get_ca_factured',
-    description: "CA FACTURÉ (somme orders.total_price) — différent du CA encaissé. À utiliser pour 'CA hors annulation', 'CA des commandes clôturées', 'CA des commandes en cours'.",
+    description: "CA FACTURÉ NET (somme orders.total_price sur BC + factures, hors devis non acceptés, hors commandes annulées par défaut). Convention métier comptable. Pour le CA facturé BRUT (incluant annulées), passer `include_cancelled='true'`.",
     parameters: { type: 'object', properties: {
       date_from: { type: 'string' }, date_to: { type: 'string' },
-      status: { type: 'string', description: "Filtre par statut exact (ex: 'Terminée')" },
+      status: { type: 'string', description: "Filtre par statut exact (ex: 'Terminée'). Si tu mets 'Annulée' ici, l'exclusion par défaut est levée." },
       status_in: { type: 'array', items: { type: 'string' }, description: "Liste de statuts à inclure" },
-      exclude_cancelled: { type: 'string', enum: ['true', 'false'], description: "Si 'true', exclut les commandes annulées" },
+      include_cancelled: { type: 'string', enum: ['true', 'false'], description: "Par défaut FALSE — annulées exclues. Mettre 'true' pour le CA facturé brut." },
       user_id: { type: 'string', description: "Filtre par vendeur" },
     }},
   },

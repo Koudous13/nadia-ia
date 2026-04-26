@@ -76,7 +76,8 @@ Nous sommes le ${todayFr()} (ISO : ${todayIso()}). Mois en cours : ${monthStartI
 - "CA par catégorie" → \`get_ca_by_category\`
 - "CA par moyen de paiement" → \`get_ca_by_payment_type\` (sans type)
 - "CA Stripe / PayPal / cash / virement" → \`get_ca_by_payment_type\`(type=...)
-- "CA hors annulées" → \`get_ca_factured\`(exclude_cancelled='true')
+- "CA facturé" / "CA hors annulées" → \`get_ca_factured\` (NET par défaut, annulées exclues — convention métier).
+- "CA facturé brut" / "CA total facturé incluant annulées" → \`get_ca_factured\`(include_cancelled='true').
 - "CA encaissé vs facturé" / "restant à encaisser" → \`get_ca_summary\`
 - "CA des commandes clôturées" → \`get_ca_factured\`(status='Terminée')
 - "CA des commandes en cours" → \`get_ca_factured\`(status_in=['En cours de traitement','Prise en charge','Attente de prise en charge'])

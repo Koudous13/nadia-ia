@@ -106,7 +106,7 @@ Authentification Supabase. Voir `src/app/login/actions.ts`.
 | Outil | Description | Notes |
 |-------|-------------|-------|
 | `get_ca` | CA encaissé sur période | `date_from?, date_to?, user_id?` |
-| `get_ca_factured` | CA facturé (orders.total_price) | `status?, status_in?, exclude_cancelled?, user_id?` |
+| `get_ca_factured` | CA facturé NET (annulées exclues par défaut, BC + factures) | `status?, status_in?, include_cancelled?, user_id?` |
 | `get_ca_summary` | Synthèse facturé/encaissé/restant | — |
 | `get_ca_by_day` | CA jour par jour | Pour [CHART:line] |
 | `get_ca_by_payment_type` | Répartition par moyen de paiement | `type?` filtre Stripe/PayPal/cash/etc. |

@@ -45,10 +45,19 @@ export async function getCaByDay(args: { date_from?: string; date_to?: string })
   `, params);
 }
 
+/**
+ * CA facturé = somme orders.total_price sur BC + factures (state IN (2,3)).
+ * Convention métier : par défaut, les commandes annulées sont EXCLUES
+ * (CA facturé "net"). Pour le brut (incluant annulées), passer
+ * `include_cancelled='true'`.
+ */
 export async function getCaFactured(args: {
   date_from?: string; date_to?: string;
   status?: string; status_in?: string[];
+  /** @deprecated — laissé pour rétro-compatibilité. Sans effet : les annulées sont exclues par défaut. */
   exclude_cancelled?: string | boolean;
+  /** Si 'true', inclut les commandes annulées dans le CA facturé brut. Default: false. */
+  include_cancelled?: string | boolean;
   user_id?: string;
 }) {
   const conds: string[] = ['o.deleted_at IS NULL', `o.state IN ${BILLED_STATES}`];
@@ -60,7 +69,15 @@ export async function getCaFactured(args: {
     conds.push(`o.statuts IN (${args.status_in.map(() => '?').join(',')})`);
     params.push(...args.status_in);
   }
-  if (args.exclude_cancelled === true || args.exclude_cancelled === 'true') {
+  // Annulées exclues par défaut. Opt-out via include_cancelled='true'.
+  // Si l'utilisateur filtre explicitement sur status='Annulée' ou status_in incluant 'Annulée',
+  // on respecte ce choix et on ne ré-exclut pas.
+  const userExplicitlyWantsCancelled =
+    args.status === 'Annulée' ||
+    (args.status_in?.includes('Annulée') ?? false);
+  const includeCancelled =
+    args.include_cancelled === true || args.include_cancelled === 'true';
+  if (!includeCancelled && !userExplicitlyWantsCancelled) {
     conds.push(`o.statuts <> 'Annulée'`);
   }
   if (args.user_id) { conds.push('o.user_id = ?'); params.push(Number(args.user_id)); }
@@ -74,7 +91,8 @@ export async function getCaFactured(args: {
 }
 
 export async function getCaSummary(args: { date_from?: string; date_to?: string }) {
-  const f = await getCaFactured({ ...args, exclude_cancelled: 'true' });
+  // Default getCaFactured exclut déjà les annulées
+  const f = await getCaFactured(args);
   const period = periodSql('pay.created_at', args.date_from, args.date_to);
   const enc = await queryOne(`
     SELECT ROUND(SUM(${PAYMENT_AMOUNT}), 2) AS ca_encaisse,

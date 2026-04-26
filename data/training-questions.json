@@ -113,7 +113,8 @@
     {
       "id": "ca-15", "cat": "ca", "q": "CA hors commandes annulées ?",
       "intent": "ca_factured_hors_annul", "tool": "get_ca_factured",
-      "args": { "exclude_cancelled": "true" }
+      "args": {},
+      "note": "Annulées exclues par défaut depuis le fix conventions métier."
     },
     {
       "id": "ca-16", "cat": "ca", "q": "CA encaissé vs facturé ?",
