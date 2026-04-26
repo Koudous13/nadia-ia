@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useChat } from './ChatProvider';
 import { Sidebar } from './Sidebar';
 import { TopHeader } from './TopHeader';
@@ -18,6 +18,7 @@ export function ChatShell() {
   const { messages, isLoading, sendMessage, clearMessages } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const lastNavHandled = useRef<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const activeLabel = labelForRoute(pathname);
 
@@ -54,13 +55,19 @@ export function ChatShell() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30 font-sans overflow-hidden sm:flex-row">
-      <Sidebar onNavigate={handleShortcut} activePath={pathname} />
+    <div className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30 font-sans overflow-hidden">
+      <Sidebar
+        onNavigate={handleShortcut}
+        activePath={pathname}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <TopHeader
           userName="Ali"
           notificationCount={3}
+          onMenuClick={() => setSidebarOpen(true)}
           onClearConversation={() => {
             if (messages.length === 0) return;
             if (window.confirm('Vider la conversation ?')) clearMessages();
@@ -69,11 +76,11 @@ export function ChatShell() {
 
         <PageKpis pathname={pathname} />
 
-        <div className="flex-1 overflow-y-auto chat-scroll px-8">
+        <div className="flex-1 overflow-y-auto chat-scroll px-3 sm:px-8">
           {messages.length === 0 ? (
             <WelcomeHero />
           ) : (
-            <div className="max-w-4xl mx-auto py-6 space-y-4">
+            <div className="max-w-4xl mx-auto py-4 sm:py-6 space-y-4">
               {messages.map((msg) => (
                 <ChatMessage key={msg.id} message={msg} />
               ))}
@@ -83,7 +90,7 @@ export function ChatShell() {
           )}
         </div>
 
-        <div className="px-8 pb-6 pt-3">
+        <div className="px-3 sm:px-8 pb-4 sm:pb-6 pt-2 sm:pt-3">
           <div className="max-w-4xl mx-auto w-full">
             <ChatInput onSend={sendMessage} disabled={isLoading} />
           </div>
@@ -95,18 +102,18 @@ export function ChatShell() {
 
 function WelcomeHero() {
   return (
-    <div className="max-w-5xl mx-auto h-full flex items-center justify-center py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-6 items-center w-full">
-        <div className="space-y-4">
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl px-7 py-6 shadow-sm border border-white/80">
-            <p className="text-[22px] font-semibold text-slate-800 leading-snug">
+    <div className="max-w-5xl mx-auto min-h-full flex items-center justify-center py-6 sm:py-8">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-4 sm:gap-6 items-center w-full">
+        <div className="space-y-3 sm:space-y-4 order-2 lg:order-1">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl px-5 sm:px-7 py-5 sm:py-6 shadow-sm border border-white/80">
+            <p className="text-[18px] sm:text-[22px] font-semibold text-slate-800 leading-snug">
               Bonjour !<br />
               Que puis-je analyser ou faire pour vous aujourd&apos;hui ?
             </p>
           </div>
-          <p className="text-[14px] text-slate-500 italic px-2">En attente d&apos;une instruction...</p>
+          <p className="text-[13px] sm:text-[14px] text-slate-500 italic px-2">En attente d&apos;une instruction...</p>
         </div>
-        <div className="relative w-full aspect-[4/3] max-w-[520px] mx-auto">
+        <div className="relative w-full aspect-[4/3] max-w-[280px] sm:max-w-[520px] mx-auto order-1 lg:order-2">
           <Image src="/nadia-illustration.png" alt="Nadia" fill priority className="object-contain" />
         </div>
       </div>

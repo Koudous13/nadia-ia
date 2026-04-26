@@ -34,13 +34,13 @@ export function PageKpis({ pathname }: { pathname: string }) {
   if (!pageKey) return null;
 
   return (
-    <div className="px-8 pt-3 pb-1">
-      <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3">
+    <div className="px-3 sm:px-8 pt-2 sm:pt-3 pb-1">
+      <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
         {loading && !kpis && Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="bg-white/70 backdrop-blur-sm rounded-xl border border-white/80 p-4 animate-pulse">
-            <div className="h-3 w-24 bg-slate-200 rounded mb-2" />
-            <div className="h-6 w-32 bg-slate-200 rounded mb-1" />
-            <div className="h-3 w-20 bg-slate-100 rounded" />
+          <div key={i} className="bg-white/70 backdrop-blur-sm rounded-xl border border-white/80 p-3 sm:p-4 animate-pulse">
+            <div className="h-3 w-20 sm:w-24 bg-slate-200 rounded mb-2" />
+            <div className="h-5 sm:h-6 w-24 sm:w-32 bg-slate-200 rounded mb-1" />
+            <div className="h-3 w-16 sm:w-20 bg-slate-100 rounded" />
           </div>
         ))}
         {err && (
@@ -62,10 +62,10 @@ function KpiCard({ kpi }: { kpi: Kpi }) {
                    : kpi.tone === 'warn' ? 'text-amber-700'
                    : 'text-slate-800';
   return (
-    <div className={`bg-white/85 backdrop-blur-sm rounded-xl border border-white/80 px-4 py-3 ring-1 ${toneRing} shadow-sm`}>
-      <div className="text-[11px] uppercase tracking-wider text-slate-500 font-medium truncate">{kpi.label}</div>
-      <div className={`mt-1 text-[18px] font-semibold ${toneValue} truncate`} title={kpi.value}>{kpi.value}</div>
-      {kpi.sub && <div className="text-[11px] text-slate-500 mt-0.5 truncate" title={kpi.sub}>{kpi.sub}</div>}
+    <div className={`bg-white/85 backdrop-blur-sm rounded-xl border border-white/80 px-3 sm:px-4 py-2.5 sm:py-3 ring-1 ${toneRing} shadow-sm`}>
+      <div className="text-[10px] sm:text-[11px] uppercase tracking-wider text-slate-500 font-medium truncate">{kpi.label}</div>
+      <div className={`mt-1 text-[15px] sm:text-[18px] font-semibold ${toneValue} truncate`} title={kpi.value}>{kpi.value}</div>
+      {kpi.sub && <div className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 truncate" title={kpi.sub}>{kpi.sub}</div>}
     </div>
   );
 }

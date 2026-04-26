@@ -87,61 +87,88 @@ const MAIN_ITEMS = [
 interface SidebarProps {
   activePath?: string;
   onNavigate: (label: string) => void;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-export function Sidebar({ activePath = '/', onNavigate, isExpanded = true, onToggle }: SidebarProps & { isExpanded?: boolean; onToggle?: () => void }) {
-  // Use the passed isExpanded value instead of internal state
+export function Sidebar({ activePath = '/', onNavigate, isOpen = false, onClose }: SidebarProps) {
+  const handleNavigate = (label: string) => {
+    onNavigate(label);
+    onClose?.();
+  };
 
   return (
-    <aside className="w-full md:w-64 shrink-0 bg-[#1E3A5F] text-white flex flex-col h-screen">
-      <div className="px-5 py-5">
-        <button
-          onClick={() => onNavigate('Assistant IA')}
-          className="flex items-center gap-2.5 w-full text-left hover:opacity-90 transition-opacity"
-        >
-          <Icon.Logo className="w-8 h-8 text-white" />
-          <div className="leading-tight">
-            <div className="font-bold text-[19px] tracking-tight">Paperasse</div>
-            <div className="text-[9px] text-white/50 tracking-[0.15em] uppercase">Assistance administrative</div>
-          </div>
-        </button>
-      </div>
+    <>
+      {/* Backdrop mobile (visible uniquement quand drawer ouvert) */}
+      {isOpen && (
+        <div
+          onClick={onClose}
+          className="md:hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 transition-opacity"
+          aria-hidden="true"
+        />
+      )}
 
-      <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto">
-        {MAIN_ITEMS.map((item) => {
-          const IconCmp = item.icon;
-          const isActive = activePath === routeForLabel(item.label);
-          return (
-            <button
-              key={item.id}
-              onClick={() => onNavigate(item.label)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-medium transition-colors cursor-pointer ${
-                isActive ? 'bg-white/10 text-white' : 'text-white/80 hover:bg-white/5 hover:text-white'
-              }`}
-            >
-              <IconCmp className="w-[18px] h-[18px] shrink-0" />
-    <span className="hidden sm:inline">{item.label}</span>
-            </button>
-          );
-        })}
-
-        <div className="pt-6 pb-2 px-3">
-          <div className="text-[10px] text-white/40 tracking-[0.2em] uppercase font-semibold">Utilitaires</div>
+      <aside
+        className={`bg-[#1E3A5F] text-white flex flex-col
+                    fixed inset-y-0 left-0 z-50 w-[260px]
+                    transition-transform duration-300 ease-out
+                    ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+                    md:relative md:translate-x-0 md:w-64 md:shrink-0 md:h-screen`}
+      >
+        <div className="px-5 py-5 flex items-center justify-between">
+          <button
+            onClick={() => handleNavigate('Assistant IA')}
+            className="flex items-center gap-2.5 text-left hover:opacity-90 transition-opacity"
+          >
+            <Icon.Logo className="w-8 h-8 text-white" />
+            <div className="leading-tight">
+              <div className="font-bold text-[19px] tracking-tight">Paperasse</div>
+              <div className="text-[9px] text-white/50 tracking-[0.15em] uppercase">Assistance administrative</div>
+            </div>
+          </button>
+          {/* Bouton fermeture mobile */}
+          <button
+            onClick={onClose}
+            className="md:hidden w-8 h-8 flex items-center justify-center text-white/60 hover:text-white"
+            aria-label="Fermer le menu"
+          >
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
-      </nav>
+        <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto">
+          {MAIN_ITEMS.map((item) => {
+            const IconCmp = item.icon;
+            const isActive = activePath === routeForLabel(item.label);
+            return (
+              <button
+                key={item.id}
+                onClick={() => handleNavigate(item.label)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-medium transition-colors cursor-pointer ${
+                  isActive ? 'bg-white/10 text-white' : 'text-white/80 hover:bg-white/5 hover:text-white'
+                }`}
+              >
+                <IconCmp className="w-[18px] h-[18px] shrink-0" />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
 
-      <div className="p-4">
-        <button
-          onClick={() => onNavigate('Actions recommandées')}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
-        >
-          <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center">
-            <Icon.Sparkles className="w-4 h-4" />
-          </div>
-          <span className="text-[13px] font-medium text-white/90">Actions recommandées</span>
-        </button>
-      </div>
-    </aside>
+        <div className="p-4">
+          <button
+            onClick={() => handleNavigate('Actions recommandées')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+          >
+            <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center">
+              <Icon.Sparkles className="w-4 h-4" />
+            </div>
+            <span className="text-[13px] font-medium text-white/90">Actions recommandées</span>
+          </button>
+        </div>
+      </aside>
+    </>
   );
 }
