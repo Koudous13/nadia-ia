@@ -1,11 +1,20 @@
 // Analytics tools — CA, performance, comparaisons, conversion
 // Tous les montants sont retournés en euros (déjà divisés par 100).
 // Convention: les paiements sont en JSON {amount, currency} stocké en cents.
+//
+// Sémantique des états (orders.state) :
+//   1 = DEV  (devis, proposition non acceptée)
+//   2 = BC   (bon de commande, accepté à facturer)
+//   3 = FACT (facture émise)
+// Cycle métier : DEV → BC → FACT.
 
 import { queryAll, queryOne } from './database';
 
 const PERSON_TYPE = 'App\\Models\\Person';
-const FACTURED_STATES = '(1,3)';
+// CA facturé / "vraies commandes engageantes" : BC + facture
+const BILLED_STATES = '(2,3)';
+// Tout ce qui est encore actif : devis + BC + facture
+const OPEN_STATES = '(1,2,3)';
 
 // Périodes : produit un fragment SQL et les params
 function periodSql(col: string, from?: string | null, to?: string | null) {
@@ -42,7 +51,7 @@ export async function getCaFactured(args: {
   exclude_cancelled?: string | boolean;
   user_id?: string;
 }) {
-  const conds: string[] = ['o.deleted_at IS NULL', `o.state IN ${FACTURED_STATES}`];
+  const conds: string[] = ['o.deleted_at IS NULL', `o.state IN ${BILLED_STATES}`];
   const params: unknown[] = [];
   if (args.date_from) { conds.push('o.created_at >= ?'); params.push(args.date_from); }
   if (args.date_to)   { conds.push('o.created_at <= ?'); params.push(`${args.date_to} 23:59:59`); }
@@ -182,7 +191,7 @@ export async function comparePeriods(args: {
 export async function getAverageBasket(args: {
   date_from?: string; date_to?: string; by_user?: string | boolean;
 }) {
-  const conds: string[] = ['o.deleted_at IS NULL', `o.state IN ${FACTURED_STATES}`, `o.statuts <> 'Annulée'`];
+  const conds: string[] = ['o.deleted_at IS NULL', `o.state IN ${BILLED_STATES}`, `o.statuts <> 'Annulée'`];
   const params: unknown[] = [];
   if (args.date_from) { conds.push('o.created_at >= ?'); params.push(args.date_from); }
   if (args.date_to)   { conds.push('o.created_at <= ?'); params.push(`${args.date_to} 23:59:59`); }
@@ -269,7 +278,7 @@ export async function getTopVendorsByPrestation(args: {
 export async function getTopVendorsByFactured(args: {
   date_from?: string; date_to?: string; limit?: string;
 }) {
-  const conds: string[] = ['o.deleted_at IS NULL', `o.state IN ${FACTURED_STATES}`, `o.statuts <> 'Annulée'`];
+  const conds: string[] = ['o.deleted_at IS NULL', `o.state IN ${BILLED_STATES}`, `o.statuts <> 'Annulée'`];
   const params: unknown[] = [];
   if (args.date_from) { conds.push('o.created_at >= ?'); params.push(args.date_from); }
   if (args.date_to)   { conds.push('o.created_at <= ?'); params.push(`${args.date_to} 23:59:59`); }
@@ -417,8 +426,20 @@ export async function countOrders(args: {
       SUM(CASE WHEN o.statuts = 'Attente de prise en charge' THEN 1 ELSE 0 END) AS total_attente_prise_en_charge,
       SUM(CASE WHEN o.is_payed = 1 THEN 1 ELSE 0 END) AS total_payees,
       SUM(CASE WHEN o.is_payed = 0 THEN 1 ELSE 0 END) AS total_non_payees,
-      SUM(CASE WHEN o.state IN (1,2) THEN 1 ELSE 0 END) AS total_devis,
-      SUM(CASE WHEN o.state = 3 THEN 1 ELSE 0 END) AS total_factures
+      -- Breakdown par état :
+      --   state=1 = DEV (devis non accepté)
+      --   state=2 = BC  (bon de commande accepté)
+      --   state=3 = FACT (facture émise)
+      SUM(CASE WHEN o.state = 1 THEN 1 ELSE 0 END) AS total_devis,
+      SUM(CASE WHEN o.state = 2 THEN 1 ELSE 0 END) AS total_bons_commande,
+      SUM(CASE WHEN o.state = 3 THEN 1 ELSE 0 END) AS total_factures,
+      SUM(CASE WHEN o.state IN (2,3) THEN 1 ELSE 0 END) AS total_commandes_engagees,
+      SUM(CASE WHEN o.state IN (2,3) AND o.statuts NOT IN ('Terminée','Annulée','Livrée','Expédié') THEN 1 ELSE 0 END) AS total_open_billed,
+      SUM(CASE WHEN o.state IN (2,3) AND o.statuts NOT IN ('Terminée','Annulée','Livrée','Expédié')
+                AND TIMESTAMPDIFF(DAY, o.created_at, NOW()) >= 30 THEN 1 ELSE 0 END) AS total_overdue_30d_billed,
+      SUM(CASE WHEN o.state = 1 AND o.statuts NOT IN ('Terminée','Annulée','Livrée','Expédié') THEN 1 ELSE 0 END) AS total_open_quotes,
+      SUM(CASE WHEN o.state = 1 AND o.statuts NOT IN ('Terminée','Annulée','Livrée','Expédié')
+                AND TIMESTAMPDIFF(DAY, o.created_at, NOW()) >= 30 THEN 1 ELSE 0 END) AS total_overdue_30d_quotes
     FROM orders o
     WHERE ${where}
   `, params);
@@ -441,8 +462,15 @@ export async function countOrders(args: {
     total_attente_prise_en_charge: Number(summary?.total_attente_prise_en_charge ?? 0),
     total_payees: Number(summary?.total_payees ?? 0),
     total_non_payees: Number(summary?.total_non_payees ?? 0),
+    // Breakdown par état (DEV/BC/FACT)
     total_devis: Number(summary?.total_devis ?? 0),
+    total_bons_commande: Number(summary?.total_bons_commande ?? 0),
     total_factures: Number(summary?.total_factures ?? 0),
+    total_commandes_engagees: Number(summary?.total_commandes_engagees ?? 0),
+    total_open_billed: Number(summary?.total_open_billed ?? 0),
+    total_overdue_30d_billed: Number(summary?.total_overdue_30d_billed ?? 0),
+    total_open_quotes: Number(summary?.total_open_quotes ?? 0),
+    total_overdue_30d_quotes: Number(summary?.total_overdue_30d_quotes ?? 0),
     by_status: byStatus,
   };
 }
@@ -495,9 +523,11 @@ export async function getOverdueOrders(args: {
   limit?: string;
 }) {
   const days = Math.max(1, Number(args.threshold_days) || 30);
+  // "En retard" = tout dossier ouvert (devis + BC + facture) > N jours non clos.
+  // Inclure les devis traduit la sémantique métier "tout ce qui traîne".
   const conds: string[] = [
     'o.deleted_at IS NULL',
-    `o.state IN ${FACTURED_STATES}`,
+    `o.state IN ${OPEN_STATES}`,
     `TIMESTAMPDIFF(DAY, o.created_at, NOW()) >= ${days}`,
   ];
   if (args.exclude_closed === true || args.exclude_closed === 'true' || args.exclude_closed === undefined) {

@@ -1,8 +1,16 @@
 // Anomalies, paiements partiels, doublons, balances clients, devis non payés
+//
+// Sémantique des états (orders.state) :
+//   1 = DEV  (devis, proposition non acceptée)
+//   2 = BC   (bon de commande, accepté à facturer)
+//   3 = FACT (facture émise)
 import { queryAll, queryOne } from './database';
 
 const PERSON_TYPE = 'App\\Models\\Person';
-const FACTURED_STATES = '(1,3)';
+// Engagements fermes : BC + facture (un devis n'a pas de paiement attendu)
+const BILLED_STATES = '(2,3)';
+// Devis purs uniquement (proposition non acceptée)
+const QUOTE_STATES = '(1)';
 const PAYMENT_AMOUNT = `CAST(pay.amount->>'$.amount' AS DECIMAL(20,2)) / 100`;
 const ORDER_TOTAL    = `CAST(o.total_price->>'$.amount' AS DECIMAL(20,2)) / 100`;
 const BLOCKED_STATUSES = `('Attente retour client (Prise en charge)','Attente retour client (En cours de traitement)','Attente réglement (Prise en charge)','Attente réglement (En cours de traitement)','Attente retour administration','Attente rendez-vous administratif','Attente validation hiérarchique')`;
@@ -20,7 +28,7 @@ export async function getPartialPayments(args: { limit?: string }) {
              IFNULL(SUM(${PAYMENT_AMOUNT}), 0) AS paye
       FROM orders o
       LEFT JOIN payments pay ON pay.order_id = o.id
-      WHERE o.deleted_at IS NULL AND o.state IN ${FACTURED_STATES}
+      WHERE o.deleted_at IS NULL AND o.state IN ${BILLED_STATES}
         AND o.statuts <> 'Annulée' AND ${ORDER_TOTAL} > 0
       GROUP BY o.id, o.total_price
       HAVING paye > 0 AND paye < facture
@@ -39,7 +47,7 @@ export async function getPartialPayments(args: { limit?: string }) {
     LEFT JOIN clients c ON o.client_id = c.id
     LEFT JOIN people p ON c.customer_id = p.id
     WHERE o.deleted_at IS NULL
-      AND o.state IN ${FACTURED_STATES}
+      AND o.state IN ${BILLED_STATES}
       AND o.statuts <> 'Annulée'
       AND ${ORDER_TOTAL} > 0
     GROUP BY o.id, o.number, o.statuts, o.created_at, o.total_price, u.name, p.first_name, p.last_name
@@ -58,7 +66,7 @@ export async function getPartialPayments(args: { limit?: string }) {
 export async function getOutstandingBalance(args: {
   date_from?: string; date_to?: string; user_id?: string;
 }) {
-  const conds: string[] = ['o.deleted_at IS NULL', `o.state IN ${FACTURED_STATES}`, `o.statuts <> 'Annulée'`];
+  const conds: string[] = ['o.deleted_at IS NULL', `o.state IN ${BILLED_STATES}`, `o.statuts <> 'Annulée'`];
   const params: unknown[] = [];
   if (args.date_from) { conds.push('o.created_at >= ?'); params.push(args.date_from); }
   if (args.date_to)   { conds.push('o.created_at <= ?'); params.push(`${args.date_to} 23:59:59`); }
@@ -70,7 +78,7 @@ export async function getOutstandingBalance(args: {
            ROUND(IFNULL((
              SELECT SUM(${PAYMENT_AMOUNT})
              FROM payments pay JOIN orders o2 ON pay.order_id=o2.id
-             WHERE o2.deleted_at IS NULL AND o2.state IN ${FACTURED_STATES}
+             WHERE o2.deleted_at IS NULL AND o2.state IN ${BILLED_STATES}
                AND o2.statuts <> 'Annulée'
                ${args.date_from ? 'AND o2.created_at >= ?' : ''}
                ${args.date_to ? 'AND o2.created_at <= ?' : ''}
@@ -79,7 +87,7 @@ export async function getOutstandingBalance(args: {
            ROUND(SUM(${ORDER_TOTAL}) - IFNULL((
              SELECT SUM(${PAYMENT_AMOUNT})
              FROM payments pay JOIN orders o2 ON pay.order_id=o2.id
-             WHERE o2.deleted_at IS NULL AND o2.state IN ${FACTURED_STATES}
+             WHERE o2.deleted_at IS NULL AND o2.state IN ${BILLED_STATES}
                AND o2.statuts <> 'Annulée'
                ${args.date_from ? 'AND o2.created_at >= ?' : ''}
                ${args.date_to ? 'AND o2.created_at <= ?' : ''}
@@ -105,7 +113,7 @@ export async function getClientsWithBalance(args: { limit?: string }) {
     JOIN people p ON c.customer_id = p.id
     LEFT JOIN users u ON c.user_id = u.id
     JOIN orders o ON o.client_id = c.id AND o.deleted_at IS NULL
-                  AND o.state IN ${FACTURED_STATES} AND o.statuts <> 'Annulée'
+                  AND o.state IN ${BILLED_STATES} AND o.statuts <> 'Annulée'
     LEFT JOIN (
       SELECT pay.order_id, SUM(${PAYMENT_AMOUNT}) AS total
       FROM payments pay GROUP BY pay.order_id
@@ -154,8 +162,8 @@ export async function getOrdersWithoutPayment(args: {
 }) {
   const conds: string[] = ['o.deleted_at IS NULL', `o.statuts <> 'Annulée'`];
   if (args.exclude_quotes === true || args.exclude_quotes === 'true') {
-    conds.push(`o.state IN ${FACTURED_STATES}`);
-    conds.push(`o.state <> 2`);
+    // Sans devis purs : BC + factures uniquement (engagements fermes).
+    conds.push(`o.state IN ${BILLED_STATES}`);
   }
   const params: unknown[] = [];
   if (args.date_from) { conds.push('o.created_at >= ?'); params.push(args.date_from); }
@@ -301,7 +309,7 @@ export async function getInconsistentAmounts() {
         SELECT pay.order_id, SUM(${PAYMENT_AMOUNT}) AS total
         FROM payments pay GROUP BY pay.order_id
       ) payed ON payed.order_id = o.id
-      WHERE o.deleted_at IS NULL AND o.state IN ${FACTURED_STATES} AND ${ORDER_TOTAL} > 0
+      WHERE o.deleted_at IS NULL AND o.state IN ${BILLED_STATES} AND ${ORDER_TOTAL} > 0
       HAVING flag = 1
     ) AS t
   `);
@@ -326,7 +334,7 @@ export async function getInconsistentAmounts() {
       FROM payments pay GROUP BY pay.order_id
     ) payed ON payed.order_id = o.id
     WHERE o.deleted_at IS NULL
-      AND o.state IN ${FACTURED_STATES}
+      AND o.state IN ${BILLED_STATES}
       AND ${ORDER_TOTAL} > 0
     HAVING anomalie IS NOT NULL
     ORDER BY total_facture DESC
@@ -491,6 +499,8 @@ export async function getDuplicatePayments() {
 // ───── Devis non payés / clients ─────
 
 export async function getUnpaidQuotes(args: { min_amount?: string; limit?: string }) {
+  // (1,2) = devis (state=1) + BC accepté mais pas encore payé (state=2).
+  // Sémantique métier : "tout ce qui doit être relancé pour devenir cash".
   const conds: string[] = ['o.deleted_at IS NULL', 'o.state IN (1,2)', `o.statuts <> 'Annulée'`];
   const params: unknown[] = [];
   if (args.min_amount) { conds.push(`${ORDER_TOTAL} >= ?`); params.push(Number(args.min_amount)); }
@@ -700,7 +710,7 @@ export async function getMonthlySummary(args: { year?: string; month?: string })
       SELECT COUNT(*) AS nb_cmd, ROUND(SUM(${ORDER_TOTAL}), 2) AS ca_facture,
              SUM(CASE WHEN o.statuts='Annulée' THEN 1 ELSE 0 END) AS nb_annulees
       FROM orders o
-      WHERE o.deleted_at IS NULL AND o.state IN ${FACTURED_STATES}
+      WHERE o.deleted_at IS NULL AND o.state IN ${BILLED_STATES}
         AND o.created_at BETWEEN ? AND ?
     `, [monthStart, `${monthEnd} 23:59:59`]),
     queryAll(`
@@ -751,7 +761,7 @@ export async function getLossAnalysis() {
       SELECT pay.order_id, SUM(${PAYMENT_AMOUNT}) AS total
       FROM payments pay GROUP BY pay.order_id
     ) payed ON payed.order_id = o.id
-    WHERE o.deleted_at IS NULL AND o.state IN ${FACTURED_STATES}
+    WHERE o.deleted_at IS NULL AND o.state IN ${BILLED_STATES}
       AND o.statuts NOT IN ('Annulée') AND ${ORDER_TOTAL} > IFNULL(payed.total, 0)
   `);
   const devisNonConvertis = await queryOne(`
