@@ -359,13 +359,15 @@
     },
     {
       "id": "adm-07", "cat": "perf-admin", "q": "Agent avec le plus de dossiers bloqués ?",
-      "intent": "most_blocked_user", "tool": "get_orders_by_vendor_status",
-      "args": { "status": "Attente retour client (Prise en charge)" }
+      "intent": "most_blocked_user", "tool": "get_orders_blocked",
+      "args": { "group_by": "user", "limit": "10" },
+      "note": "Bloqué = 7 statuts d'attente externe (cf. BLOCKED_STATUSES). get_orders_by_vendor_status ne filtre qu'un statut, donc inadapté."
     },
     {
       "id": "adm-08", "cat": "perf-admin", "q": "Agent avec le moins d'erreurs ?",
-      "intent": "REFUS", "tool": null,
-      "expected_response": "Pas de notion d'erreur loggée. Approximation possible : agent avec le moins de commandes annulées."
+      "intent": "most_efficient_user_proxy",
+      "tool": null,
+      "note": "Pas de notion d'erreur tracée — plusieurs proxies acceptables : get_volume_vs_cancellations_by_user, OU get_processing_time_by_user + get_orders_by_vendor_status(status='Annulée'). On laisse l'IA choisir tant qu'elle synthétise correctement."
     },
     {
       "id": "adm-09", "cat": "perf-admin", "q": "Agent le plus efficace ?",

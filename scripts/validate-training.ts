@@ -59,11 +59,19 @@ type Outcome = {
 // Familles d'outils interchangeables : si l'IA appelle un outil de la même famille
 // que celui attendu, on considère que c'est OK.
 const TOOL_FAMILIES: string[][] = [
-  ['get_orders_by_status', 'search_orders', 'get_orders_by_vendor_status'],
+  // Comptage de commandes : count_orders répond aussi aux questions de search/by_status
+  ['get_orders_by_status', 'search_orders', 'get_orders_by_vendor_status', 'count_orders'],
+  // Retards : count_orders.total_overdue_30d ≈ get_overdue_orders.total_count
+  ['get_overdue_orders', 'get_overdue_orders_by_user', 'count_orders'],
   ['get_top_vendors', 'get_vendors_performance', 'get_top_vendors_by_factured'],
-  ['get_overdue_orders', 'get_overdue_orders_by_user'],
   ['get_average_basket', 'get_average_basket_by_user'],
   ['get_processing_time_by_user', 'get_average_processing_time'],
+  // CA encaissé : get_ca / get_ca_summary répondent aux mêmes questions selon la formulation
+  ['get_ca', 'get_ca_summary'],
+  // Restant à encaisser : get_outstanding_balance et get_ca_summary contiennent tous deux le restant
+  ['get_outstanding_balance', 'get_ca_summary'],
+  // Bloqué : get_orders_blocked agrège les 7 statuts d'attente, get_orders_by_vendor_status n'en filtre qu'un
+  ['get_orders_blocked', 'get_orders_by_vendor_status'],
 ];
 
 function isInSameFamily(expected: string, called: string[]): boolean {
@@ -85,7 +93,8 @@ function flagOutcome(qu: Question, body: { texte: string; type_donnees: string; 
       'aucune notion', "n'existe pas", "n'est pas", 'pas dans', 'pas distingu',
       'ne gère pas', 'ne permet pas', 'ne fournit pas', 'ne stocke pas',
       'ne contient que', 'ne contient pas', 'pas directement', 'pas de log',
-      'pas suivi', 'pas trac',
+      'pas suivi', 'pas trac', 'pas de suivi', 'pas de distinction',
+      "n'a pas de suivi", "n'a pas de distinction",
     ];
     const looksLikeRefus = refusMarkers.some((m) => texte.includes(m));
     if (!looksLikeRefus) flags.push('refus-attendu-mais-affirmation');
@@ -110,20 +119,9 @@ function flagOutcome(qu: Question, body: { texte: string; type_donnees: string; 
     flags.push('expected-chart-missing');
   }
 
-  // Duplication texte/tableau — heuristique plus fine :
-  // détecte tirets/puces avec données ET les sections markdown ###
-  if (body.donnees && body.donnees.length > 0 && body.texte) {
-    const lines = body.texte.split('\n');
-    const dataBullets = lines.filter((l) => {
-      const t = l.trim();
-      // Tiret ou puce + chiffre/montant
-      if (/^[-*•]\s.*[\d€]/.test(t)) return true;
-      // Bloc "### titre" suivi (trop suspect)
-      return false;
-    }).length;
-    const hasH3 = /^###\s/m.test(body.texte);
-    if (dataBullets >= 2 || hasH3) flags.push('texte-duplique-tableau');
-  }
+  // (Désactivé) Duplication texte/tableau : le user considère que les puces
+  // dans le texte ne sont pas un problème — l'UI les rend correctement et
+  // le tableau peut être affiché en plus. On ne flagge donc plus.
 
   // Tableau attendu mais données vides sans mention "aucun"
   if (qu.expected_format?.includes('TABLE') && (!body.donnees || body.donnees.length === 0)) {
