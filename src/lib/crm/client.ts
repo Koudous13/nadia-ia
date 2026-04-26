@@ -331,11 +331,17 @@ export async function executeToolCall(
     // ──── Statistiques ────
 
     case 'get_ca': {
+      // Sémantique par défaut : "CA encaissé sur la période" = filtre sur pay.created_at
+      // (montant réellement reçu pendant la période, peu importe la date de la commande).
+      // Mode 'order_date' conservé pour compatibilité : filtre sur o.created_at.
+      const by = args.by === 'order_date' ? 'order_date' : 'payment_date';
+      const dateCol = by === 'order_date' ? 'o.created_at' : 'pay.created_at';
+
       const conditions: string[] = ['o.deleted_at IS NULL'];
       const params: unknown[] = [];
 
-      if (args.date_from) { conditions.push(`o.created_at >= ?`); params.push(args.date_from); }
-      if (args.date_to) { conditions.push(`o.created_at <= ?`); params.push(args.date_to + ' 23:59:59'); }
+      if (args.date_from) { conditions.push(`${dateCol} >= ?`); params.push(args.date_from); }
+      if (args.date_to) { conditions.push(`${dateCol} <= ?`); params.push(args.date_to + ' 23:59:59'); }
       if (args.user_id) { conditions.push(`o.user_id = ?`); params.push(Number(args.user_id)); }
 
       const where = conditions.join(' AND ');
@@ -348,6 +354,7 @@ export async function executeToolCall(
         WHERE ${where}
       `, params);
 
+      // nb_commandes_total : commandes créées dans la période, indépendant du mode by
       const condTotal: string[] = ['o.deleted_at IS NULL'];
       const paramsTotal: unknown[] = [];
       if (args.date_from) { condTotal.push(`o.created_at >= ?`); paramsTotal.push(args.date_from); }
@@ -358,7 +365,8 @@ export async function executeToolCall(
 
       const caEncaisse = (result?.ca_encaisse as number) || 0;
       return {
-        nb_commandes_total: nbTotal?.total ?? 0,
+        by,
+        nb_commandes_creees_periode: nbTotal?.total ?? 0,
         nb_commandes_avec_paiement: result?.nb_commandes ?? 0,
         ca_encaisse: caEncaisse,
         ca_formatted: formatPrice(caEncaisse),

@@ -151,13 +151,14 @@ export const crmTools: ToolDefinition[] = [
   // ──── Statistiques ────
   {
     name: 'get_ca',
-    description: "Calculer le chiffre d'affaires (CA encaissé) sur une période, éventuellement par vendeur.",
+    description: "Calculer le chiffre d'affaires ENCAISSÉ sur une période. Par défaut, filtre par date de paiement (montant réellement reçu pendant la période). Optionnel : `by='order_date'` filtre par date de création de la commande (= encaissé jusqu'à présent sur les commandes créées dans la période).",
     parameters: {
       type: 'object',
       properties: {
         date_from: { type: 'string', description: "Date de début YYYY-MM-DD (optionnel)" },
         date_to: { type: 'string', description: "Date de fin YYYY-MM-DD (optionnel)" },
         user_id: { type: 'string', description: "ID du vendeur pour filtrer (optionnel)" },
+        by: { type: 'string', enum: ['payment_date', 'order_date'], description: "Base du filtre date : 'payment_date' (par défaut) ou 'order_date'" },
       },
     },
   },
