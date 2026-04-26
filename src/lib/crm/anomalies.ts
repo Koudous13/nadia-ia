@@ -11,7 +11,22 @@ const BLOCKED_STATUSES = `('Attente retour client (Prise en charge)','Attente re
 
 export async function getPartialPayments(args: { limit?: string }) {
   const limit = Math.min(Number(args.limit) || 50, 200);
-  return queryAll(`
+  const totalRow = await queryOne(`
+    SELECT COUNT(*) AS total_count,
+           ROUND(IFNULL(SUM(reste), 0), 2) AS reste_total
+    FROM (
+      SELECT ${ORDER_TOTAL} - IFNULL(SUM(${PAYMENT_AMOUNT}), 0) AS reste,
+             ${ORDER_TOTAL} AS facture,
+             IFNULL(SUM(${PAYMENT_AMOUNT}), 0) AS paye
+      FROM orders o
+      LEFT JOIN payments pay ON pay.order_id = o.id
+      WHERE o.deleted_at IS NULL AND o.state IN ${FACTURED_STATES}
+        AND o.statuts <> 'Annulée' AND ${ORDER_TOTAL} > 0
+      GROUP BY o.id, o.total_price
+      HAVING paye > 0 AND paye < facture
+    ) AS t
+  `);
+  const data = await queryAll(`
     SELECT o.id, o.number, o.statuts AS status, o.created_at,
            ROUND(${ORDER_TOTAL}, 2) AS total_facture,
            ROUND(IFNULL(SUM(${PAYMENT_AMOUNT}), 0), 2) AS total_paye,
@@ -32,6 +47,12 @@ export async function getPartialPayments(args: { limit?: string }) {
     ORDER BY reste_a_payer DESC
     LIMIT ${limit}
   `);
+  return {
+    total_count: Number(totalRow?.total_count ?? 0),
+    reste_total: Number(totalRow?.reste_total ?? 0),
+    sample_size: data.length, sample_truncated: Number(totalRow?.total_count ?? 0) > data.length,
+    data,
+  };
 }
 
 export async function getOutstandingBalance(args: {
@@ -100,7 +121,15 @@ export async function getClientsWithBalance(args: { limit?: string }) {
 // ───── Anomalies financières ─────
 
 export async function getPaymentsWithoutOrder() {
-  const r = await queryAll(`
+  const totalRow = await queryOne(`
+    SELECT COUNT(*) AS total_count,
+           ROUND(IFNULL(SUM(${PAYMENT_AMOUNT}), 0), 2) AS montant_total
+    FROM payments pay
+    WHERE pay.order_id IS NULL OR NOT EXISTS (
+      SELECT 1 FROM orders o WHERE o.id = pay.order_id AND o.deleted_at IS NULL
+    )
+  `);
+  const data = await queryAll(`
     SELECT pay.id, pay.type, pay.created_at,
            ROUND(${PAYMENT_AMOUNT}, 2) AS montant,
            u.name AS encaisse_par
@@ -112,7 +141,12 @@ export async function getPaymentsWithoutOrder() {
     ORDER BY pay.created_at DESC
     LIMIT 200
   `);
-  return r;
+  return {
+    total_count: Number(totalRow?.total_count ?? 0),
+    montant_total: Number(totalRow?.montant_total ?? 0),
+    sample_size: data.length, sample_truncated: Number(totalRow?.total_count ?? 0) > data.length,
+    data,
+  };
 }
 
 export async function getOrdersWithoutPayment(args: {
@@ -126,8 +160,16 @@ export async function getOrdersWithoutPayment(args: {
   const params: unknown[] = [];
   if (args.date_from) { conds.push('o.created_at >= ?'); params.push(args.date_from); }
   if (args.date_to)   { conds.push('o.created_at <= ?'); params.push(`${args.date_to} 23:59:59`); }
+  const where = conds.join(' AND ');
 
-  return queryAll(`
+  const totalRow = await queryOne(`
+    SELECT COUNT(*) AS total_count,
+           ROUND(IFNULL(SUM(${ORDER_TOTAL}), 0), 2) AS montant_total
+    FROM orders o WHERE ${where} AND NOT EXISTS (
+      SELECT 1 FROM payments pay WHERE pay.order_id = o.id
+    )
+  `, params);
+  const data = await queryAll(`
     SELECT o.id, o.number, o.statuts AS status, o.created_at,
            TIMESTAMPDIFF(DAY, o.created_at, NOW()) AS jours,
            ROUND(${ORDER_TOTAL}, 2) AS montant,
@@ -137,12 +179,18 @@ export async function getOrdersWithoutPayment(args: {
     LEFT JOIN users u ON o.user_id = u.id
     LEFT JOIN clients c ON o.client_id = c.id
     LEFT JOIN people p ON c.customer_id = p.id
-    WHERE ${conds.join(' AND ')} AND NOT EXISTS (
+    WHERE ${where} AND NOT EXISTS (
       SELECT 1 FROM payments pay WHERE pay.order_id = o.id
     )
     ORDER BY o.created_at DESC
     LIMIT 100
   `, params);
+  return {
+    total_count: Number(totalRow?.total_count ?? 0),
+    montant_total: Number(totalRow?.montant_total ?? 0),
+    sample_size: data.length, sample_truncated: Number(totalRow?.total_count ?? 0) > data.length,
+    data,
+  };
 }
 
 export async function getOrdersPaidNotTreated(args: {
@@ -158,21 +206,31 @@ export async function getOrdersPaidNotTreated(args: {
     conds.push(`EXISTS (SELECT 1 FROM payments pay WHERE pay.order_id=o.id AND TRIM(LOWER(pay.type))=TRIM(LOWER(?)))`);
     params.push(args.payment_type);
   }
+  const where = conds.join(' AND ');
+  const totalRow = await queryOne(`
+    SELECT COUNT(*) AS total_count,
+           ROUND(IFNULL(SUM(${ORDER_TOTAL}), 0), 2) AS montant_total
+    FROM orders o WHERE ${where}
+  `, params);
+  const total_count = Number(totalRow?.total_count ?? 0);
+  const montant_total = Number(totalRow?.montant_total ?? 0);
+
   if (args.group_by === 'client') {
-    return queryAll(`
+    const data = await queryAll(`
       SELECT c.id AS client_id, CONCAT(p.first_name, ' ', p.last_name) AS client,
              p.email, COUNT(*) AS nb_commandes,
              ROUND(SUM(${ORDER_TOTAL}), 2) AS ca_concerne
       FROM orders o
       LEFT JOIN clients c ON o.client_id = c.id
       LEFT JOIN people p ON c.customer_id = p.id
-      WHERE ${conds.join(' AND ')}
+      WHERE ${where}
       GROUP BY c.id, p.first_name, p.last_name, p.email
       ORDER BY nb_commandes DESC
       LIMIT 100
     `, params);
+    return { total_count, montant_total, group_by: 'client' as const, data };
   }
-  return queryAll(`
+  const data = await queryAll(`
     SELECT o.id, o.number, o.statuts AS status, o.created_at,
            TIMESTAMPDIFF(DAY, o.created_at, NOW()) AS jours,
            ROUND(${ORDER_TOTAL}, 2) AS montant,
@@ -182,14 +240,26 @@ export async function getOrdersPaidNotTreated(args: {
     LEFT JOIN users u ON o.user_id = u.id
     LEFT JOIN clients c ON o.client_id = c.id
     LEFT JOIN people p ON c.customer_id = p.id
-    WHERE ${conds.join(' AND ')}
+    WHERE ${where}
     ORDER BY o.created_at DESC
     LIMIT 100
   `, params);
+  return {
+    total_count, montant_total,
+    sample_size: data.length, sample_truncated: total_count > data.length,
+    data,
+  };
 }
 
 export async function getOrdersCompletedNotPaid() {
-  return queryAll(`
+  const totalRow = await queryOne(`
+    SELECT COUNT(*) AS total_count,
+           ROUND(IFNULL(SUM(${ORDER_TOTAL}), 0), 2) AS montant_total
+    FROM orders o
+    WHERE o.deleted_at IS NULL AND o.statuts = 'Terminée'
+      AND o.is_payed = 0 AND ${ORDER_TOTAL} > 0
+  `);
+  const data = await queryAll(`
     SELECT o.id, o.number, o.statuts AS status, o.created_at, o.status_updated_at,
            ROUND(${ORDER_TOTAL}, 2) AS total_facture,
            ROUND(IFNULL((
@@ -208,10 +278,34 @@ export async function getOrdersCompletedNotPaid() {
     ORDER BY o.status_updated_at DESC
     LIMIT 100
   `);
+  return {
+    total_count: Number(totalRow?.total_count ?? 0),
+    montant_total: Number(totalRow?.montant_total ?? 0),
+    sample_size: data.length, sample_truncated: Number(totalRow?.total_count ?? 0) > data.length,
+    data,
+  };
 }
 
 export async function getInconsistentAmounts() {
-  return queryAll(`
+  const totalRow = await queryOne(`
+    SELECT COUNT(*) AS total_count FROM (
+      SELECT o.id,
+        CASE
+          WHEN o.is_payed = 1 AND IFNULL(payed.total, 0) = 0 AND ${ORDER_TOTAL} > 0 THEN 1
+          WHEN o.is_payed = 0 AND payed.total >= ${ORDER_TOTAL} AND ${ORDER_TOTAL} > 0 THEN 1
+          WHEN payed.total > ${ORDER_TOTAL} * 1.01 THEN 1
+          ELSE 0
+        END AS flag
+      FROM orders o
+      LEFT JOIN (
+        SELECT pay.order_id, SUM(${PAYMENT_AMOUNT}) AS total
+        FROM payments pay GROUP BY pay.order_id
+      ) payed ON payed.order_id = o.id
+      WHERE o.deleted_at IS NULL AND o.state IN ${FACTURED_STATES} AND ${ORDER_TOTAL} > 0
+      HAVING flag = 1
+    ) AS t
+  `);
+  const data = await queryAll(`
     SELECT o.id, o.number, o.statuts AS status, o.is_payed,
            ROUND(${ORDER_TOTAL}, 2) AS total_facture,
            ROUND(IFNULL(payed.total, 0), 2) AS total_paye,
@@ -238,10 +332,21 @@ export async function getInconsistentAmounts() {
     ORDER BY total_facture DESC
     LIMIT 200
   `);
+  return {
+    total_count: Number(totalRow?.total_count ?? 0),
+    sample_size: data.length, sample_truncated: Number(totalRow?.total_count ?? 0) > data.length,
+    data,
+  };
 }
 
 export async function getOrdersWithoutUser() {
-  return queryAll(`
+  const totalRow = await queryOne(`
+    SELECT COUNT(*) AS total_count,
+           ROUND(IFNULL(SUM(${ORDER_TOTAL}), 0), 2) AS montant_total
+    FROM orders o
+    WHERE o.deleted_at IS NULL AND (o.user_id IS NULL OR o.user_id = 0)
+  `);
+  const data = await queryAll(`
     SELECT o.id, o.number, o.statuts AS status, o.created_at,
            ROUND(${ORDER_TOTAL}, 2) AS montant
     FROM orders o
@@ -249,10 +354,21 @@ export async function getOrdersWithoutUser() {
     ORDER BY o.created_at DESC
     LIMIT 100
   `);
+  return {
+    total_count: Number(totalRow?.total_count ?? 0),
+    montant_total: Number(totalRow?.montant_total ?? 0),
+    sample_size: data.length, sample_truncated: Number(totalRow?.total_count ?? 0) > data.length,
+    data,
+  };
 }
 
 export async function getOrdersWithoutPrestation() {
-  return queryAll(`
+  const totalRow = await queryOne(`
+    SELECT COUNT(*) AS total_count
+    FROM orders o
+    WHERE o.deleted_at IS NULL AND (o.prestation_id IS NULL OR o.prestation_id = 0)
+  `);
+  const data = await queryAll(`
     SELECT o.id, o.number, o.statuts AS status, o.created_at,
            ROUND(${ORDER_TOTAL}, 2) AS montant,
            u.name AS vendeur
@@ -262,6 +378,11 @@ export async function getOrdersWithoutPrestation() {
     ORDER BY o.created_at DESC
     LIMIT 100
   `);
+  return {
+    total_count: Number(totalRow?.total_count ?? 0),
+    sample_size: data.length, sample_truncated: Number(totalRow?.total_count ?? 0) > data.length,
+    data,
+  };
 }
 
 // ───── Doublons ─────
@@ -269,7 +390,17 @@ export async function getOrdersWithoutPrestation() {
 export async function getDuplicateClients(args: { by?: 'email' | 'phone' }) {
   const by = args.by === 'phone' ? 'phone' : 'email';
   if (by === 'email') {
-    return queryAll(`
+    const totalRow = await queryOne(`
+      SELECT COUNT(*) AS total_groups, IFNULL(SUM(n), 0) AS total_clients_affected FROM (
+        SELECT COUNT(*) AS n FROM clients c JOIN people p ON c.customer_id = p.id
+        WHERE c.customer_type = ?
+          AND p.email IS NOT NULL AND p.email <> ''
+          AND TRIM(LOWER(p.email)) NOT IN ('nc','aucun','none','x@x.com','test@test.com')
+          AND TRIM(LOWER(p.email)) NOT LIKE '%paperasse%'
+        GROUP BY p.email HAVING n > 1
+      ) AS t
+    `, [PERSON_TYPE]);
+    const data = await queryAll(`
       SELECT p.email,
              COUNT(*) AS nb_doublons,
              GROUP_CONCAT(c.id ORDER BY c.id) AS client_ids,
@@ -285,8 +416,24 @@ export async function getDuplicateClients(args: { by?: 'email' | 'phone' }) {
       ORDER BY nb_doublons DESC
       LIMIT 50
     `, [PERSON_TYPE]);
+    return {
+      by: 'email' as const,
+      total_groups: Number(totalRow?.total_groups ?? 0),
+      total_clients_affected: Number(totalRow?.total_clients_affected ?? 0),
+      sample_size: data.length, sample_truncated: Number(totalRow?.total_groups ?? 0) > data.length,
+      data,
+    };
   }
-  return queryAll(`
+  const totalRow = await queryOne(`
+    SELECT COUNT(*) AS total_groups, IFNULL(SUM(n), 0) AS total_clients_affected FROM (
+      SELECT COUNT(*) AS n FROM clients c JOIN people p ON c.customer_id = p.id
+      WHERE c.customer_type = ?
+        AND p.phone_number IS NOT NULL AND p.phone_number <> ''
+        AND LENGTH(p.phone_number) >= 9
+      GROUP BY p.phone_number HAVING n > 1
+    ) AS t
+  `, [PERSON_TYPE]);
+  const data = await queryAll(`
     SELECT p.phone_number AS phone,
            COUNT(*) AS nb_doublons,
            GROUP_CONCAT(c.id ORDER BY c.id) AS client_ids,
@@ -301,10 +448,25 @@ export async function getDuplicateClients(args: { by?: 'email' | 'phone' }) {
     ORDER BY nb_doublons DESC
     LIMIT 50
   `, [PERSON_TYPE]);
+  return {
+    by: 'phone' as const,
+    total_groups: Number(totalRow?.total_groups ?? 0),
+    total_clients_affected: Number(totalRow?.total_clients_affected ?? 0),
+    sample_size: data.length, sample_truncated: Number(totalRow?.total_groups ?? 0) > data.length,
+    data,
+  };
 }
 
 export async function getDuplicatePayments() {
-  return queryAll(`
+  const totalRow = await queryOne(`
+    SELECT COUNT(*) AS total_groups, IFNULL(SUM(n), 0) AS total_payments_affected FROM (
+      SELECT COUNT(*) AS n FROM payments pay
+      WHERE pay.order_id IS NOT NULL
+      GROUP BY pay.order_id, pay.amount->>'$.amount', pay.type, DATE(pay.created_at)
+      HAVING n > 1
+    ) AS t
+  `);
+  const data = await queryAll(`
     SELECT pay.order_id,
            pay.amount->>'$.amount' AS amount_cents,
            pay.type,
@@ -318,6 +480,12 @@ export async function getDuplicatePayments() {
     ORDER BY nb_doublons DESC, jour DESC
     LIMIT 50
   `);
+  return {
+    total_groups: Number(totalRow?.total_groups ?? 0),
+    total_payments_affected: Number(totalRow?.total_payments_affected ?? 0),
+    sample_size: data.length, sample_truncated: Number(totalRow?.total_groups ?? 0) > data.length,
+    data,
+  };
 }
 
 // ───── Devis non payés / clients ─────
@@ -327,7 +495,16 @@ export async function getUnpaidQuotes(args: { min_amount?: string; limit?: strin
   const params: unknown[] = [];
   if (args.min_amount) { conds.push(`${ORDER_TOTAL} >= ?`); params.push(Number(args.min_amount)); }
   const limit = Math.min(Number(args.limit) || 50, 200);
-  return queryAll(`
+  const where = conds.join(' AND ');
+
+  const totalRow = await queryOne(`
+    SELECT COUNT(*) AS total_count,
+           ROUND(IFNULL(SUM(${ORDER_TOTAL}), 0), 2) AS ca_potentiel_total
+    FROM orders o WHERE ${where} AND NOT EXISTS (
+      SELECT 1 FROM payments pay WHERE pay.order_id = o.id
+    )
+  `, params);
+  const data = await queryAll(`
     SELECT o.id, o.number, o.statuts AS status, o.created_at,
            TIMESTAMPDIFF(DAY, o.created_at, NOW()) AS jours_depuis,
            ROUND(${ORDER_TOTAL}, 2) AS montant,
@@ -338,12 +515,18 @@ export async function getUnpaidQuotes(args: { min_amount?: string; limit?: strin
     LEFT JOIN users u ON o.user_id = u.id
     LEFT JOIN clients c ON o.client_id = c.id
     LEFT JOIN people p ON c.customer_id = p.id
-    WHERE ${conds.join(' AND ')} AND NOT EXISTS (
+    WHERE ${where} AND NOT EXISTS (
       SELECT 1 FROM payments pay WHERE pay.order_id = o.id
     )
     ORDER BY montant DESC
     LIMIT ${limit}
   `, params);
+  return {
+    total_count: Number(totalRow?.total_count ?? 0),
+    ca_potentiel_total: Number(totalRow?.ca_potentiel_total ?? 0),
+    sample_size: data.length, sample_truncated: Number(totalRow?.total_count ?? 0) > data.length,
+    data,
+  };
 }
 
 export async function getTopClients(args: {

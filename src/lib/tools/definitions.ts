@@ -441,6 +441,15 @@ export const crmTools: ToolDefinition[] = [
       date_from: { type: 'string' }, date_to: { type: 'string' }, limit: { type: 'string' },
     }},
   },
+  {
+    name: 'count_orders',
+    description: "OUTIL OBLIGATOIRE pour TOUTE question de comptage commandes : 'combien de commandes', 'commandes en retard', 'commandes non clôturées', 'commandes payées', 'devis', 'commandes annulées', etc. Retourne en UN SEUL APPEL : total, total_closed, total_open, total_overdue_30d, total_overdue_90d, total_terminees, total_annulees, total_attente_prise_en_charge, total_payees, total_non_payees, total_devis, total_factures + by_status[]. Filtres optionnels date_from/date_to/user_id. **NE JAMAIS sommer manuellement une liste pour répondre à 'combien de X' — utilise ce tool.**",
+    parameters: { type: 'object', properties: {
+      date_from: { type: 'string', description: "Date début YYYY-MM-DD (optionnel, sinon = depuis le début)" },
+      date_to: { type: 'string', description: "Date fin YYYY-MM-DD (optionnel, sinon = aujourd'hui)" },
+      user_id: { type: 'string', description: "ID vendeur pour filtrer (optionnel)" },
+    }},
+  },
 
   // ════════════════════ ANOMALIES & PAIEMENTS ════════════════════
   {

@@ -90,18 +90,15 @@ async function buildKpis(page: string): Promise<Kpi[]> {
     }
 
     case 'alertes': {
-      const overdue = await executeToolCall('get_overdue_orders', { threshold_days: '30', group_by: 'user', limit: '50' }) as Array<{ nb_en_retard: number }>;
-      const blocked = await executeToolCall('get_orders_blocked', { group_by: 'user', limit: '50' }) as Array<{ nb_bloquees: number }>;
-      const orphans = await executeToolCall('get_payments_without_order', {}) as Array<unknown>;
-      const unpaid = await executeToolCall('get_unpaid_quotes', { min_amount: '500', limit: '200' }) as Array<{ montant: number }>;
-      const totalRetard = overdue.reduce((s, r) => s + Number(r.nb_en_retard), 0);
-      const totalBloque = blocked.reduce((s, r) => s + Number(r.nb_bloquees), 0);
-      const caUnpaid = unpaid.reduce((s, r) => s + Number(r.montant), 0);
+      const overdue = await executeToolCall('get_overdue_orders', { threshold_days: '30', group_by: 'user', limit: '50' }) as { total_count: number; ca_bloque_total: number };
+      const blocked = await executeToolCall('get_orders_blocked', { group_by: 'user', limit: '50' }) as { total_count: number; ca_bloque_total: number };
+      const orphans = await executeToolCall('get_payments_without_order', {}) as { total_count: number; montant_total: number };
+      const unpaid  = await executeToolCall('get_unpaid_quotes', { min_amount: '500', limit: '200' }) as { total_count: number; ca_potentiel_total: number };
       return [
-        { label: 'Commandes > 30j', value: fmtNum(totalRetard), sub: 'non clôturées', tone: 'warn' },
-        { label: 'Dossiers bloqués', value: fmtNum(totalBloque), sub: 'en attente externe', tone: 'warn' },
-        { label: 'Paiements orphelins', value: fmtNum(orphans.length), sub: 'sans commande liée', tone: orphans.length > 0 ? 'warn' : 'good' },
-        { label: 'Devis ≥ 500 € non payés', value: fmtNum(unpaid.length), sub: fmtEur(caUnpaid) + ' potentiel', tone: 'warn' },
+        { label: 'Commandes > 30j', value: fmtNum(overdue.total_count), sub: `${fmtEur(overdue.ca_bloque_total)} bloqués`, tone: 'warn' },
+        { label: 'Dossiers bloqués', value: fmtNum(blocked.total_count), sub: `${fmtEur(blocked.ca_bloque_total)} en attente externe`, tone: 'warn' },
+        { label: 'Paiements orphelins', value: fmtNum(orphans.total_count), sub: `${fmtEur(orphans.montant_total)} sans commande`, tone: orphans.total_count > 0 ? 'warn' : 'good' },
+        { label: 'Devis ≥ 500 € non payés', value: fmtNum(unpaid.total_count), sub: fmtEur(unpaid.ca_potentiel_total) + ' potentiel', tone: 'warn' },
       ];
     }
 

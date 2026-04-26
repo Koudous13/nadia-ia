@@ -387,6 +387,66 @@ export async function getVolumeVsCancellationsByUser() {
   `);
 }
 
+// ───── Comptages globaux (anti-hallucination) ─────
+
+/**
+ * Outil one-shot pour répondre à TOUTES les questions de type "combien de commandes…".
+ * Pas besoin de sommer à la main une liste tronquée par le LLM — on calcule tout en SQL.
+ */
+export async function countOrders(args: {
+  date_from?: string; date_to?: string; user_id?: string;
+}) {
+  const periodConds: string[] = ['o.deleted_at IS NULL'];
+  const params: unknown[] = [];
+  if (args.date_from) { periodConds.push('o.created_at >= ?'); params.push(args.date_from); }
+  if (args.date_to)   { periodConds.push('o.created_at <= ?'); params.push(`${args.date_to} 23:59:59`); }
+  if (args.user_id)   { periodConds.push('o.user_id = ?'); params.push(Number(args.user_id)); }
+  const where = periodConds.join(' AND ');
+
+  const summary = await queryOne(`
+    SELECT
+      COUNT(*) AS total,
+      SUM(CASE WHEN o.statuts IN ('Terminée','Annulée','Livrée','Expédié') THEN 1 ELSE 0 END) AS total_closed,
+      SUM(CASE WHEN o.statuts NOT IN ('Terminée','Annulée','Livrée','Expédié') THEN 1 ELSE 0 END) AS total_open,
+      SUM(CASE WHEN o.statuts NOT IN ('Terminée','Annulée','Livrée','Expédié')
+                AND TIMESTAMPDIFF(DAY, o.created_at, NOW()) >= 30 THEN 1 ELSE 0 END) AS total_overdue_30d,
+      SUM(CASE WHEN o.statuts NOT IN ('Terminée','Annulée','Livrée','Expédié')
+                AND TIMESTAMPDIFF(DAY, o.created_at, NOW()) >= 90 THEN 1 ELSE 0 END) AS total_overdue_90d,
+      SUM(CASE WHEN o.statuts = 'Terminée' THEN 1 ELSE 0 END) AS total_terminees,
+      SUM(CASE WHEN o.statuts = 'Annulée' THEN 1 ELSE 0 END) AS total_annulees,
+      SUM(CASE WHEN o.statuts = 'Attente de prise en charge' THEN 1 ELSE 0 END) AS total_attente_prise_en_charge,
+      SUM(CASE WHEN o.is_payed = 1 THEN 1 ELSE 0 END) AS total_payees,
+      SUM(CASE WHEN o.is_payed = 0 THEN 1 ELSE 0 END) AS total_non_payees,
+      SUM(CASE WHEN o.state IN (1,2) THEN 1 ELSE 0 END) AS total_devis,
+      SUM(CASE WHEN o.state = 3 THEN 1 ELSE 0 END) AS total_factures
+    FROM orders o
+    WHERE ${where}
+  `, params);
+
+  const byStatus = await queryAll(`
+    SELECT o.statuts AS status, COUNT(*) AS n
+    FROM orders o WHERE ${where}
+    GROUP BY o.statuts ORDER BY n DESC
+  `, params);
+
+  return {
+    periode: { date_from: args.date_from || 'début', date_to: args.date_to || "aujourd'hui", user_id: args.user_id || null },
+    total: Number(summary?.total ?? 0),
+    total_closed: Number(summary?.total_closed ?? 0),
+    total_open: Number(summary?.total_open ?? 0),
+    total_overdue_30d: Number(summary?.total_overdue_30d ?? 0),
+    total_overdue_90d: Number(summary?.total_overdue_90d ?? 0),
+    total_terminees: Number(summary?.total_terminees ?? 0),
+    total_annulees: Number(summary?.total_annulees ?? 0),
+    total_attente_prise_en_charge: Number(summary?.total_attente_prise_en_charge ?? 0),
+    total_payees: Number(summary?.total_payees ?? 0),
+    total_non_payees: Number(summary?.total_non_payees ?? 0),
+    total_devis: Number(summary?.total_devis ?? 0),
+    total_factures: Number(summary?.total_factures ?? 0),
+    by_status: byStatus,
+  };
+}
+
 // ───── Délai / Retards ─────
 
 export async function getProcessingTimeByUser(args: {
@@ -450,22 +510,33 @@ export async function getOverdueOrders(args: {
   if (args.min_amount) params.push(Number(args.min_amount));
 
   const limit = Math.min(Number(args.limit) || 50, 200);
+  const where = conds.join(' AND ');
+
+  // Toujours calculer le total + le CA bloqué global, indépendant du LIMIT
+  const totalRow = await queryOne(`
+    SELECT COUNT(*) AS total_count,
+           ROUND(IFNULL(SUM(${ORDER_TOTAL}), 0), 2) AS ca_bloque_total
+    FROM orders o WHERE ${where}
+  `, params);
+  const total_count = Number(totalRow?.total_count ?? 0);
+  const ca_bloque_total = Number(totalRow?.ca_bloque_total ?? 0);
 
   if (args.group_by === 'user') {
-    return queryAll(`
+    const data = await queryAll(`
       SELECT u.id, u.name AS vendeur,
              COUNT(*) AS nb_en_retard,
              ROUND(SUM(${ORDER_TOTAL}), 2) AS ca_bloque
       FROM orders o
       LEFT JOIN users u ON o.user_id = u.id
-      WHERE ${conds.join(' AND ')}
+      WHERE ${where}
       GROUP BY u.id, u.name
       ORDER BY nb_en_retard DESC
       LIMIT ${limit}
     `, params);
+    return { total_count, ca_bloque_total, threshold_days: days, group_by: 'user' as const, data };
   }
   if (args.group_by === 'client') {
-    return queryAll(`
+    const data = await queryAll(`
       SELECT c.id AS client_id,
              CONCAT(p.first_name, ' ', p.last_name) AS client,
              COUNT(*) AS nb_en_retard,
@@ -473,13 +544,14 @@ export async function getOverdueOrders(args: {
       FROM orders o
       LEFT JOIN clients c ON o.client_id = c.id
       LEFT JOIN people p ON c.customer_id = p.id
-      WHERE ${conds.join(' AND ')}
+      WHERE ${where}
       GROUP BY c.id, p.first_name, p.last_name
       ORDER BY nb_en_retard DESC
       LIMIT ${limit}
     `, params);
+    return { total_count, ca_bloque_total, threshold_days: days, group_by: 'client' as const, data };
   }
-  return queryAll(`
+  const data = await queryAll(`
     SELECT o.id, o.number, o.statuts AS status,
            o.created_at,
            TIMESTAMPDIFF(DAY, o.created_at, NOW()) AS jours,
@@ -490,10 +562,15 @@ export async function getOverdueOrders(args: {
     LEFT JOIN users u ON o.user_id = u.id
     LEFT JOIN clients c ON o.client_id = c.id
     LEFT JOIN people p ON c.customer_id = p.id
-    WHERE ${conds.join(' AND ')}
+    WHERE ${where}
     ORDER BY jours DESC
     LIMIT ${limit}
   `, params);
+  return {
+    total_count, ca_bloque_total, threshold_days: days,
+    sample_size: data.length, sample_truncated: total_count > data.length,
+    data,
+  };
 }
 
 const BLOCKED_STATUSES = `('Attente retour client (Prise en charge)','Attente retour client (En cours de traitement)','Attente réglement (Prise en charge)','Attente réglement (En cours de traitement)','Attente retour administration','Attente rendez-vous administratif','Attente validation hiérarchique')`;
@@ -505,30 +582,41 @@ export async function getOrdersBlocked(args: {
   const params: unknown[] = [];
   if (args.min_amount) { conds.push(`${ORDER_TOTAL} >= ?`); params.push(Number(args.min_amount)); }
   const limit = Math.min(Number(args.limit) || 50, 200);
+  const where = conds.join(' AND ');
+
+  const totalRow = await queryOne(`
+    SELECT COUNT(*) AS total_count,
+           ROUND(IFNULL(SUM(${ORDER_TOTAL}), 0), 2) AS ca_bloque_total
+    FROM orders o WHERE ${where}
+  `, params);
+  const total_count = Number(totalRow?.total_count ?? 0);
+  const ca_bloque_total = Number(totalRow?.ca_bloque_total ?? 0);
 
   if (args.group_by === 'user') {
-    return queryAll(`
+    const data = await queryAll(`
       SELECT u.id, u.name AS vendeur,
              COUNT(*) AS nb_bloquees,
              ROUND(SUM(${ORDER_TOTAL}), 2) AS ca_bloque
       FROM orders o LEFT JOIN users u ON o.user_id = u.id
-      WHERE ${conds.join(' AND ')}
+      WHERE ${where}
       GROUP BY u.id, u.name ORDER BY nb_bloquees DESC LIMIT ${limit}
     `, params);
+    return { total_count, ca_bloque_total, group_by: 'user' as const, data };
   }
   if (args.group_by === 'client') {
-    return queryAll(`
+    const data = await queryAll(`
       SELECT c.id AS client_id, CONCAT(p.first_name, ' ', p.last_name) AS client,
              COUNT(*) AS nb_bloquees,
              ROUND(SUM(${ORDER_TOTAL}), 2) AS ca_bloque
       FROM orders o
       LEFT JOIN clients c ON o.client_id = c.id
       LEFT JOIN people p ON c.customer_id = p.id
-      WHERE ${conds.join(' AND ')}
+      WHERE ${where}
       GROUP BY c.id, p.first_name, p.last_name ORDER BY nb_bloquees DESC LIMIT ${limit}
     `, params);
+    return { total_count, ca_bloque_total, group_by: 'client' as const, data };
   }
-  return queryAll(`
+  const data = await queryAll(`
     SELECT o.id, o.number, o.statuts AS status, o.created_at,
            TIMESTAMPDIFF(DAY, o.created_at, NOW()) AS jours,
            ROUND(${ORDER_TOTAL}, 2) AS montant,
@@ -538,9 +626,14 @@ export async function getOrdersBlocked(args: {
     LEFT JOIN users u ON o.user_id = u.id
     LEFT JOIN clients c ON o.client_id = c.id
     LEFT JOIN people p ON c.customer_id = p.id
-    WHERE ${conds.join(' AND ')}
+    WHERE ${where}
     ORDER BY jours DESC LIMIT ${limit}
   `, params);
+  return {
+    total_count, ca_bloque_total,
+    sample_size: data.length, sample_truncated: total_count > data.length,
+    data,
+  };
 }
 
 export async function getOrdersClosedOnDate(args: { date: string }) {

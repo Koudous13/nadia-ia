@@ -570,6 +570,8 @@ export async function executeToolCall(
       return analytics.getOrdersByPrestation(args as Parameters<typeof analytics.getOrdersByPrestation>[0]);
     case 'get_ca_by_prestation_and_payment':
       return analytics.getCaByPrestationAndPayment(args as Parameters<typeof analytics.getCaByPrestationAndPayment>[0]);
+    case 'count_orders':
+      return analytics.countOrders(args as Parameters<typeof analytics.countOrders>[0]);
 
     // ──── Anomalies / paiements ────
     case 'get_partial_payments':
