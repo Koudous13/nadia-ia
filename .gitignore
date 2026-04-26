@@ -42,3 +42,6 @@ next-env.d.ts
 
 # local SQLite dump (obsolète — remplacé par MySQL live)
 /data/paperasse.db*
+
+# snapshots de runs de validation (un fichier horodaté par run)
+/data/training-runs/

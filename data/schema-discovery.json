@@ -1,0 +1,1611 @@
+{
+  "tables_top30": {
+    "label": "tables_top30",
+    "ok": true,
+    "rows": [
+      {
+        "name": "revisions",
+        "est_rows": "787667"
+      },
+      {
+        "name": "activity_log",
+        "est_rows": "199740"
+      },
+      {
+        "name": "logs",
+        "est_rows": "186228"
+      },
+      {
+        "name": "notifications",
+        "est_rows": "46179"
+      },
+      {
+        "name": "conversation_user",
+        "est_rows": "29897"
+      },
+      {
+        "name": "media",
+        "est_rows": "29025"
+      },
+      {
+        "name": "attribute_client",
+        "est_rows": "26981"
+      },
+      {
+        "name": "addon_prestation",
+        "est_rows": "22946"
+      },
+      {
+        "name": "pulse_entries",
+        "est_rows": "11487"
+      },
+      {
+        "name": "order_items",
+        "est_rows": "10479"
+      },
+      {
+        "name": "orders",
+        "est_rows": "10284"
+      },
+      {
+        "name": "attribute_prestation",
+        "est_rows": "8442"
+      },
+      {
+        "name": "log_user",
+        "est_rows": "7072"
+      },
+      {
+        "name": "prestation_prestation",
+        "est_rows": "6565"
+      },
+      {
+        "name": "clients",
+        "est_rows": "5106"
+      },
+      {
+        "name": "payments",
+        "est_rows": "4996"
+      },
+      {
+        "name": "failed_jobs",
+        "est_rows": "3934"
+      },
+      {
+        "name": "scheduled_notifications",
+        "est_rows": "3638"
+      },
+      {
+        "name": "prestations",
+        "est_rows": "3269"
+      },
+      {
+        "name": "people",
+        "est_rows": "3176"
+      },
+      {
+        "name": "conversation_messages",
+        "est_rows": "2814"
+      },
+      {
+        "name": "time_slots",
+        "est_rows": "2647"
+      },
+      {
+        "name": "conversations",
+        "est_rows": "1776"
+      },
+      {
+        "name": "declinaisons",
+        "est_rows": "1581"
+      },
+      {
+        "name": "credantials",
+        "est_rows": "1556"
+      },
+      {
+        "name": "formulaire_prestation",
+        "est_rows": "1539"
+      },
+      {
+        "name": "attributes",
+        "est_rows": "1019"
+      },
+      {
+        "name": "prestations_families",
+        "est_rows": "881"
+      },
+      {
+        "name": "stripe_products",
+        "est_rows": "816"
+      },
+      {
+        "name": "pulse_aggregates",
+        "est_rows": "782"
+      }
+    ]
+  },
+  "all_tables": {
+    "label": "all_tables",
+    "ok": true,
+    "rows": [
+      {
+        "name": "activity_log"
+      },
+      {
+        "name": "addon_prestation"
+      },
+      {
+        "name": "addons"
+      },
+      {
+        "name": "api_keys"
+      },
+      {
+        "name": "attribute_client"
+      },
+      {
+        "name": "attribute_formulaire"
+      },
+      {
+        "name": "attribute_prestation"
+      },
+      {
+        "name": "attributes"
+      },
+      {
+        "name": "booking_reminders"
+      },
+      {
+        "name": "calendar_events"
+      },
+      {
+        "name": "clients"
+      },
+      {
+        "name": "companies"
+      },
+      {
+        "name": "conversation_messages"
+      },
+      {
+        "name": "conversation_user"
+      },
+      {
+        "name": "conversations"
+      },
+      {
+        "name": "countries"
+      },
+      {
+        "name": "credantials"
+      },
+      {
+        "name": "declinaisons"
+      },
+      {
+        "name": "destinataire_letter"
+      },
+      {
+        "name": "destinataires"
+      },
+      {
+        "name": "failed_jobs"
+      },
+      {
+        "name": "folder_order"
+      },
+      {
+        "name": "folders"
+      },
+      {
+        "name": "formulaire_prestation"
+      },
+      {
+        "name": "formulaires"
+      },
+      {
+        "name": "invoice_companies"
+      },
+      {
+        "name": "jobs"
+      },
+      {
+        "name": "lead_referrals"
+      },
+      {
+        "name": "lead_sources"
+      },
+      {
+        "name": "leads"
+      },
+      {
+        "name": "letter_order"
+      },
+      {
+        "name": "letter_prestation"
+      },
+      {
+        "name": "letters"
+      },
+      {
+        "name": "log_user"
+      },
+      {
+        "name": "logs"
+      },
+      {
+        "name": "media"
+      },
+      {
+        "name": "migrations"
+      },
+      {
+        "name": "model_has_permissions"
+      },
+      {
+        "name": "model_has_roles"
+      },
+      {
+        "name": "model_settings"
+      },
+      {
+        "name": "notifications"
+      },
+      {
+        "name": "order_items"
+      },
+      {
+        "name": "order_partenaire"
+      },
+      {
+        "name": "order_prestation"
+      },
+      {
+        "name": "order_status_reminders"
+      },
+      {
+        "name": "order_task"
+      },
+      {
+        "name": "orders"
+      },
+      {
+        "name": "partenaire_prestation"
+      },
+      {
+        "name": "partenaire_services"
+      },
+      {
+        "name": "partenaires"
+      },
+      {
+        "name": "password_resets"
+      },
+      {
+        "name": "payments"
+      },
+      {
+        "name": "pdf_templates"
+      },
+      {
+        "name": "people"
+      },
+      {
+        "name": "permissions"
+      },
+      {
+        "name": "prestation_family_user"
+      },
+      {
+        "name": "prestation_prestation"
+      },
+      {
+        "name": "prestation_price_histories"
+      },
+      {
+        "name": "prestation_service"
+      },
+      {
+        "name": "prestation_user"
+      },
+      {
+        "name": "prestations"
+      },
+      {
+        "name": "prestations_families"
+      },
+      {
+        "name": "professionels"
+      },
+      {
+        "name": "pulse_aggregates"
+      },
+      {
+        "name": "pulse_entries"
+      },
+      {
+        "name": "pulse_values"
+      },
+      {
+        "name": "reseller_transactions"
+      },
+      {
+        "name": "revisions"
+      },
+      {
+        "name": "role_has_permissions"
+      },
+      {
+        "name": "roles"
+      },
+      {
+        "name": "scheduled_notifications"
+      },
+      {
+        "name": "service_categories"
+      },
+      {
+        "name": "services"
+      },
+      {
+        "name": "sessions"
+      },
+      {
+        "name": "short_url_visits"
+      },
+      {
+        "name": "short_urls"
+      },
+      {
+        "name": "status_reminder_settings"
+      },
+      {
+        "name": "stripe_products"
+      },
+      {
+        "name": "tasks"
+      },
+      {
+        "name": "telescope_entries"
+      },
+      {
+        "name": "telescope_entries_tags"
+      },
+      {
+        "name": "telescope_monitoring"
+      },
+      {
+        "name": "time_slots"
+      },
+      {
+        "name": "users"
+      },
+      {
+        "name": "vouchers"
+      },
+      {
+        "name": "webhook_calls"
+      }
+    ]
+  },
+  "job_titles": {
+    "label": "job_titles",
+    "ok": true,
+    "rows": [
+      {
+        "job_title": "",
+        "n": 107
+      },
+      {
+        "job_title": "Directeur Général",
+        "n": 1
+      },
+      {
+        "job_title": "Conseiller administratif",
+        "n": 1
+      },
+      {
+        "job_title": "Manager",
+        "n": 1
+      },
+      {
+        "job_title": "Stagiaire ",
+        "n": 1
+      },
+      {
+        "job_title": "Assistante administrative",
+        "n": 1
+      }
+    ]
+  },
+  "payments_columns": {
+    "label": "payments_columns",
+    "ok": true,
+    "rows": [
+      {
+        "COLUMN_NAME": "id",
+        "DATA_TYPE": "bigint",
+        "IS_NULLABLE": "NO"
+      },
+      {
+        "COLUMN_NAME": "amount",
+        "DATA_TYPE": "json",
+        "IS_NULLABLE": "NO"
+      },
+      {
+        "COLUMN_NAME": "type",
+        "DATA_TYPE": "varchar",
+        "IS_NULLABLE": "NO"
+      },
+      {
+        "COLUMN_NAME": "user_id",
+        "DATA_TYPE": "bigint",
+        "IS_NULLABLE": "YES"
+      },
+      {
+        "COLUMN_NAME": "order_id",
+        "DATA_TYPE": "bigint",
+        "IS_NULLABLE": "YES"
+      },
+      {
+        "COLUMN_NAME": "reason",
+        "DATA_TYPE": "varchar",
+        "IS_NULLABLE": "YES"
+      },
+      {
+        "COLUMN_NAME": "created_at",
+        "DATA_TYPE": "timestamp",
+        "IS_NULLABLE": "YES"
+      },
+      {
+        "COLUMN_NAME": "updated_at",
+        "DATA_TYPE": "timestamp",
+        "IS_NULLABLE": "YES"
+      }
+    ]
+  },
+  "payment_types": {
+    "label": "payment_types",
+    "ok": true,
+    "rows": [
+      {
+        "type": "cash",
+        "n": 6021
+      },
+      {
+        "type": "creditCard",
+        "n": 3510
+      },
+      {
+        "type": "transfer",
+        "n": 335
+      },
+      {
+        "type": "paypal",
+        "n": 136
+      },
+      {
+        "type": "stripe",
+        "n": 130
+      },
+      {
+        "type": "zettle ",
+        "n": 63
+      },
+      {
+        "type": "",
+        "n": 50
+      },
+      {
+        "type": "fidelity",
+        "n": 2
+      },
+      {
+        "type": "sponsorship",
+        "n": 1
+      }
+    ]
+  },
+  "order_statuses": {
+    "label": "order_statuses",
+    "ok": true,
+    "rows": [
+      {
+        "status": "Terminée",
+        "n": 4865
+      },
+      {
+        "status": "Attente de prise en charge",
+        "n": 3277
+      },
+      {
+        "status": "Expédié",
+        "n": 662
+      },
+      {
+        "status": "Annulée",
+        "n": 571
+      },
+      {
+        "status": "Attente retour administration",
+        "n": 360
+      },
+      {
+        "status": "Livrée",
+        "n": 253
+      },
+      {
+        "status": "Attente rendez-vous administratif",
+        "n": 97
+      },
+      {
+        "status": "Attente retour client (Prise en charge)",
+        "n": 61
+      },
+      {
+        "status": "Attente réglement (Prise en charge)",
+        "n": 53
+      },
+      {
+        "status": "Attente retour client (En cours de traitement)",
+        "n": 44
+      },
+      {
+        "status": "En cours de traitement",
+        "n": 39
+      },
+      {
+        "status": "Prise en charge",
+        "n": 35
+      },
+      {
+        "status": "Prêt pour expédition",
+        "n": 10
+      },
+      {
+        "status": "Validé par le client (a définir)",
+        "n": 10
+      },
+      {
+        "status": "Attente réglement (En cours de traitement)",
+        "n": 9
+      },
+      {
+        "status": "Envoyée électroniquement",
+        "n": 5
+      },
+      {
+        "status": "Attente validation hiérarchique",
+        "n": 4
+      },
+      {
+        "status": "Validé par l'hiérarchie",
+        "n": 4
+      }
+    ]
+  },
+  "order_states": {
+    "label": "order_states",
+    "ok": true,
+    "rows": [
+      {
+        "state": 3,
+        "n": 7197
+      },
+      {
+        "state": 1,
+        "n": 2704
+      },
+      {
+        "state": 2,
+        "n": 458
+      }
+    ]
+  },
+  "orders_columns": {
+    "label": "orders_columns",
+    "ok": true,
+    "rows": [
+      {
+        "COLUMN_NAME": "id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "number",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "client_id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "prestation_id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "partenaire_id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "state",
+        "DATA_TYPE": "int"
+      },
+      {
+        "COLUMN_NAME": "uuid",
+        "DATA_TYPE": "char"
+      },
+      {
+        "COLUMN_NAME": "client_uuid",
+        "DATA_TYPE": "char"
+      },
+      {
+        "COLUMN_NAME": "user_permanent_uuid",
+        "DATA_TYPE": "char"
+      },
+      {
+        "COLUMN_NAME": "discount",
+        "DATA_TYPE": "json"
+      },
+      {
+        "COLUMN_NAME": "margin",
+        "DATA_TYPE": "json"
+      },
+      {
+        "COLUMN_NAME": "reason",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "deadline",
+        "DATA_TYPE": "datetime"
+      },
+      {
+        "COLUMN_NAME": "statuts",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "invoice_company_id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "created_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "updated_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "declinaison_id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "user_id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "deleted_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "needs_docs",
+        "DATA_TYPE": "tinyint"
+      },
+      {
+        "COLUMN_NAME": "created_by",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "pieces",
+        "DATA_TYPE": "json"
+      },
+      {
+        "COLUMN_NAME": "vat",
+        "DATA_TYPE": "decimal"
+      },
+      {
+        "COLUMN_NAME": "total_price",
+        "DATA_TYPE": "json"
+      },
+      {
+        "COLUMN_NAME": "subtotal",
+        "DATA_TYPE": "json"
+      },
+      {
+        "COLUMN_NAME": "tax_total",
+        "DATA_TYPE": "json"
+      },
+      {
+        "COLUMN_NAME": "updated_by",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "is_payed",
+        "DATA_TYPE": "tinyint"
+      },
+      {
+        "COLUMN_NAME": "price_is_guaranteed",
+        "DATA_TYPE": "tinyint"
+      },
+      {
+        "COLUMN_NAME": "status_updated_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "status_updated_by",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "last_viewed_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "last_viewed_by",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "reseller_notification_sent",
+        "DATA_TYPE": "tinyint"
+      },
+      {
+        "COLUMN_NAME": "commission",
+        "DATA_TYPE": "tinyint"
+      },
+      {
+        "COLUMN_NAME": "paypal_id",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "quote_sent_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "quote_accepted_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "voucher_id",
+        "DATA_TYPE": "bigint"
+      }
+    ]
+  },
+  "clients_columns": {
+    "label": "clients_columns",
+    "ok": true,
+    "rows": [
+      {
+        "COLUMN_NAME": "id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "user_id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "created_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "updated_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "customer_type",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "customer_id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "receive_from",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "origin_of_provenance",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "created_by",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "updated_by",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "applied_commission",
+        "DATA_TYPE": "tinyint"
+      },
+      {
+        "COLUMN_NAME": "referral",
+        "DATA_TYPE": "enum"
+      },
+      {
+        "COLUMN_NAME": "voucher_id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "code",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "code_expires_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "code_validated_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "login_token",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "login_token_expires_at",
+        "DATA_TYPE": "timestamp"
+      }
+    ]
+  },
+  "candidate_tables": {
+    "label": "candidate_tables",
+    "ok": true,
+    "rows": [
+      {
+        "TABLE_NAME": "lead_referrals"
+      },
+      {
+        "TABLE_NAME": "lead_sources"
+      },
+      {
+        "TABLE_NAME": "leads"
+      },
+      {
+        "TABLE_NAME": "model_has_permissions"
+      },
+      {
+        "TABLE_NAME": "model_has_roles"
+      },
+      {
+        "TABLE_NAME": "permissions"
+      },
+      {
+        "TABLE_NAME": "role_has_permissions"
+      },
+      {
+        "TABLE_NAME": "roles"
+      }
+    ]
+  },
+  "users_sample": {
+    "label": "users_sample",
+    "ok": true,
+    "rows": [
+      {
+        "id": 2,
+        "name": "Ali Touati",
+        "email": "a.touati1983@gmail.com",
+        "job_title": "Directeur Général",
+        "is_active": 1
+      },
+      {
+        "id": 3,
+        "name": "Dia Ibrahima",
+        "email": "id.paperasse.argenteuil@gmail.com",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 4,
+        "name": "Hélène Villers",
+        "email": "natacha.villers@gmail.com",
+        "job_title": "",
+        "is_active": 1
+      },
+      {
+        "id": 5,
+        "name": "Smail Merah",
+        "email": "smailmerah1@yahoo.fr",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 6,
+        "name": "Lionel",
+        "email": "Ludwigagondjo@yahoo.fr",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 7,
+        "name": "Zahra Tahri",
+        "email": "zohraacher@hotmail.fr",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 8,
+        "name": "HANNACHI Halima",
+        "email": "halima.hannachi@hotmail.com",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 9,
+        "name": "Merouani Mariam",
+        "email": "mariam_59@hotmail.fr",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 10,
+        "name": "Ferdaws Sahih",
+        "email": "ferdaws.sahih@gmail.com",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 11,
+        "name": "Ibtissem SABRI",
+        "email": "Ibtissem.sabri38@gmail.com",
+        "job_title": "",
+        "is_active": 1
+      },
+      {
+        "id": 12,
+        "name": "Zohra ZENAINI ",
+        "email": "belzenzohra@gmail.com",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 13,
+        "name": "Sophie Valensi",
+        "email": "Contact@consult-assistante.com",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 14,
+        "name": "Echikr Roman",
+        "email": "roman.echikr@gmail.com",
+        "job_title": "Conseiller administratif",
+        "is_active": 1
+      },
+      {
+        "id": 15,
+        "name": "EL Haimar Hind",
+        "email": "elhaimarhind@gmail.com",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 16,
+        "name": "Yeliz Inal",
+        "email": "yelizinal@hotmail.fr",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 17,
+        "name": "Hanan kessir",
+        "email": "hananhamzi@yahoo.fr",
+        "job_title": "",
+        "is_active": 1
+      },
+      {
+        "id": 18,
+        "name": "Tabti Oumbria",
+        "email": "ounayss@yahoo.fr",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 19,
+        "name": "Naïma SABRI",
+        "email": "fanaa.sab@gmail.com",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 20,
+        "name": "Akriche Yamina",
+        "email": "yamina.akr23@gmail.com",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 21,
+        "name": "Khalid Marwa",
+        "email": "oumamatoullah936@gmail.com",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 22,
+        "name": "Ibtisem CHRAA",
+        "email": "ibtisem.chraa@hotmail.fr",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 24,
+        "name": "Samira BOUMALK ",
+        "email": "s.boumalk@hotmail.fr",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 25,
+        "name": "Sidali Nadji",
+        "email": "sidali.nadji@gmail.com",
+        "job_title": "",
+        "is_active": 1
+      },
+      {
+        "id": 26,
+        "name": "Oussoufa",
+        "email": "oussoufahassane@gmail.com",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 27,
+        "name": "Massira KEITA",
+        "email": "keita.massira@yahoo.fr",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 28,
+        "name": "Itsmail Bouchra",
+        "email": "bouchraitsmail.skema@gmail.com",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 29,
+        "name": "Thouhdikt Salmi",
+        "email": "salmithouhdikt@gmail.com",
+        "job_title": "",
+        "is_active": 1
+      },
+      {
+        "id": 30,
+        "name": "Haque Nupur",
+        "email": "akternupur1990@gmail.com",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 31,
+        "name": "Revendeur Test",
+        "email": "made4no1@hotmail.com",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 32,
+        "name": "POINT K",
+        "email": "pointk95100@gmail.com",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 33,
+        "name": "Ghommidh Amelle",
+        "email": "amelledocument@gmail.com",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 34,
+        "name": "Dourmane Douaa",
+        "email": "dourmane.douaa@outlook.fr",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 35,
+        "name": "I-CONNECT",
+        "email": "lami.iconnect@gmail.com",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 36,
+        "name": "Horizon Center",
+        "email": "nzambemalamou@gmail.com",
+        "job_title": "",
+        "is_active": 1
+      },
+      {
+        "id": 37,
+        "name": "Hafsa Rahimi",
+        "email": "hafsa.rahimi.002@gmail.com",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 38,
+        "name": "Wassila Zerkak",
+        "email": "wassila042@hotmail.fr",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 39,
+        "name": "BINE Jihad",
+        "email": "j.bine@hotmail.fr",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 40,
+        "name": "Hammani souhaila",
+        "email": "souhailamaouche@yahoo.fr",
+        "job_title": "",
+        "is_active": 1
+      },
+      {
+        "id": 41,
+        "name": "Ahmed shawata",
+        "email": "ahmedshawata11@gmail.com",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 42,
+        "name": "sidali test partenair",
+        "email": "sidali.nadji+part@gmail.com",
+        "job_title": "",
+        "is_active": 1
+      },
+      {
+        "id": 43,
+        "name": "Allal Mohammed",
+        "email": "allalmed89@gmail.com",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 44,
+        "name": "Adel benregta",
+        "email": "adelbenregta@gmail.com",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 45,
+        "name": "Debza Djalil",
+        "email": "Djalilbg30@gmail.com",
+        "job_title": "",
+        "is_active": 1
+      },
+      {
+        "id": 46,
+        "name": "Omar KOKACH",
+        "email": "omar.kokach@icloud.com",
+        "job_title": "",
+        "is_active": 1
+      },
+      {
+        "id": 47,
+        "name": "Osama Samaha",
+        "email": "egyptaef@gmail.com",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 48,
+        "name": "Abed Samira",
+        "email": "abedsamira5@gmail.com",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 49,
+        "name": "Mhatli Anis",
+        "email": "anissmhatli@outlook.com",
+        "job_title": "",
+        "is_active": 1
+      },
+      {
+        "id": 50,
+        "name": "Alili Hanane",
+        "email": "hanane.alili95@gmail.com",
+        "job_title": "",
+        "is_active": 1
+      },
+      {
+        "id": 51,
+        "name": "Sarah Benbekta",
+        "email": "benbektasarah00________@gmail.com",
+        "job_title": "",
+        "is_active": 0
+      },
+      {
+        "id": 53,
+        "name": "Sarah Benbetka",
+        "email": "Benbetkasarah00@gmail.com",
+        "job_title": "",
+        "is_active": 0
+      }
+    ]
+  },
+  "orders_sample": {
+    "label": "orders_sample",
+    "ok": true,
+    "rows": [
+      {
+        "id": 10550,
+        "number": "DEV260410550",
+        "client_id": 5462,
+        "prestation_id": 3470,
+        "partenaire_id": null,
+        "state": 1,
+        "uuid": "fe904b65-ea6e-4a88-902d-a3792ba4bbb8",
+        "client_uuid": null,
+        "user_permanent_uuid": "43993ae3-350c-4198-a22b-fe2bc7921357",
+        "discount": null,
+        "margin": null,
+        "reason": null,
+        "deadline": null,
+        "statuts": "Attente de prise en charge",
+        "invoice_company_id": null,
+        "created_at": "2026-04-25 18:07:00",
+        "updated_at": "2026-04-25 18:23:54",
+        "declinaison_id": null,
+        "user_id": 14,
+        "deleted_at": null,
+        "needs_docs": 0,
+        "created_by": 54,
+        "pieces": null,
+        "vat": "20.00",
+        "total_price": {
+          "amount": "195000",
+          "currency": "EUR"
+        },
+        "subtotal": {
+          "amount": "195000",
+          "currency": "EUR"
+        },
+        "tax_total": {
+          "amount": "0",
+          "currency": "EUR"
+        },
+        "updated_by": 92,
+        "is_payed": 0,
+        "price_is_guaranteed": 1,
+        "status_updated_at": "2026-04-25 18:07:00",
+        "status_updated_by": 92,
+        "last_viewed_at": "2026-04-25 18:23:54",
+        "last_viewed_by": 92,
+        "reseller_notification_sent": 0,
+        "commission": 0,
+        "paypal_id": null,
+        "quote_sent_at": "2026-04-25 18:07:12",
+        "quote_accepted_at": null,
+        "voucher_id": null
+      },
+      {
+        "id": 10549,
+        "number": "DEV260410549",
+        "client_id": 5461,
+        "prestation_id": 2865,
+        "partenaire_id": null,
+        "state": 1,
+        "uuid": "89dae588-a7f7-4bb7-8f2f-92341c237433",
+        "client_uuid": null,
+        "user_permanent_uuid": "ecccb98d-e6bd-4442-a9e5-b047841018af",
+        "discount": null,
+        "margin": null,
+        "reason": null,
+        "deadline": null,
+        "statuts": "Attente de prise en charge",
+        "invoice_company_id": null,
+        "created_at": "2026-04-25 17:10:04",
+        "updated_at": "2026-04-25 17:10:24",
+        "declinaison_id": null,
+        "user_id": 54,
+        "deleted_at": null,
+        "needs_docs": 0,
+        "created_by": 54,
+        "pieces": null,
+        "vat": "20.00",
+        "total_price": {
+          "amount": "795000",
+          "currency": "EUR"
+        },
+        "subtotal": {
+          "amount": "795000",
+          "currency": "EUR"
+        },
+        "tax_total": {
+          "amount": "0",
+          "currency": "EUR"
+        },
+        "updated_by": 92,
+        "is_payed": 0,
+        "price_is_guaranteed": 1,
+        "status_updated_at": "2026-04-25 17:10:04",
+        "status_updated_by": 92,
+        "last_viewed_at": "2026-04-25 17:10:24",
+        "last_viewed_by": 92,
+        "reseller_notification_sent": 0,
+        "commission": 0,
+        "paypal_id": null,
+        "quote_sent_at": "2026-04-25 17:10:10",
+        "quote_accepted_at": null,
+        "voucher_id": null
+      },
+      {
+        "id": 10548,
+        "number": "FACT260410548",
+        "client_id": 308,
+        "prestation_id": 3474,
+        "partenaire_id": null,
+        "state": 3,
+        "uuid": "2353b2f2-5a02-43b0-bd68-ddb5231ff417",
+        "client_uuid": null,
+        "user_permanent_uuid": "073faad7-515b-41ec-ad2b-aa275c5bab59",
+        "discount": null,
+        "margin": null,
+        "reason": null,
+        "deadline": null,
+        "statuts": "Attente de prise en charge",
+        "invoice_company_id": null,
+        "created_at": "2026-04-25 16:48:04",
+        "updated_at": "2026-04-25 18:28:05",
+        "declinaison_id": null,
+        "user_id": 17,
+        "deleted_at": null,
+        "needs_docs": 0,
+        "created_by": 54,
+        "pieces": null,
+        "vat": "20.00",
+        "total_price": {
+          "amount": "40000",
+          "currency": "EUR"
+        },
+        "subtotal": {
+          "amount": "0",
+          "currency": "EUR"
+        },
+        "tax_total": {
+          "amount": "0",
+          "currency": "EUR"
+        },
+        "updated_by": 92,
+        "is_payed": 0,
+        "price_is_guaranteed": 1,
+        "status_updated_at": "2026-04-25 16:48:04",
+        "status_updated_by": 92,
+        "last_viewed_at": "2026-04-25 18:28:05",
+        "last_viewed_by": 92,
+        "reseller_notification_sent": 0,
+        "commission": 0,
+        "paypal_id": null,
+        "quote_sent_at": "2026-04-25 16:48:31",
+        "quote_accepted_at": null,
+        "voucher_id": null
+      }
+    ]
+  },
+  "orders_dates_range": {
+    "label": "orders_dates_range",
+    "ok": true,
+    "rows": [
+      {
+        "oldest": "2021-07-10 00:00:00",
+        "newest": "2026-04-25 18:07:00",
+        "n": 10359
+      }
+    ]
+  },
+  "payments_dates_range": {
+    "label": "payments_dates_range",
+    "ok": true,
+    "rows": [
+      {
+        "oldest": "2021-07-24 00:00:00",
+        "newest": "2026-04-25 16:51:44",
+        "n": 10248
+      }
+    ]
+  },
+  "clients_count": {
+    "label": "clients_count",
+    "ok": true,
+    "rows": [
+      {
+        "n": 5418
+      }
+    ]
+  },
+  "model_has_roles": {
+    "label": "model_has_roles",
+    "ok": true,
+    "rows": [
+      {
+        "TABLE_NAME": "model_has_permissions"
+      },
+      {
+        "TABLE_NAME": "model_has_roles"
+      },
+      {
+        "TABLE_NAME": "permissions"
+      },
+      {
+        "TABLE_NAME": "role_has_permissions"
+      },
+      {
+        "TABLE_NAME": "roles"
+      }
+    ]
+  },
+  "payments_sample": {
+    "label": "payments_sample",
+    "ok": true,
+    "rows": [
+      {
+        "id": 10401,
+        "order_id": 10548,
+        "user_id": 92,
+        "amount": {
+          "amount": "10000",
+          "currency": "EUR"
+        },
+        "type": "cash",
+        "created_at": "2026-04-25 16:51:44"
+      },
+      {
+        "id": 10400,
+        "order_id": 10547,
+        "user_id": 92,
+        "amount": {
+          "amount": "19500",
+          "currency": "EUR"
+        },
+        "type": "creditCard",
+        "created_at": "2026-04-25 16:33:14"
+      },
+      {
+        "id": 10399,
+        "order_id": 10546,
+        "user_id": 92,
+        "amount": {
+          "amount": "15000",
+          "currency": "EUR"
+        },
+        "type": "creditCard",
+        "created_at": "2026-04-25 15:53:07"
+      }
+    ]
+  },
+  "prestations_columns": {
+    "label": "prestations_columns",
+    "ok": true,
+    "rows": [
+      {
+        "COLUMN_NAME": "id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "uuid",
+        "DATA_TYPE": "char"
+      },
+      {
+        "COLUMN_NAME": "name",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "price",
+        "DATA_TYPE": "json"
+      },
+      {
+        "COLUMN_NAME": "family_id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "tags",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "partenaire_id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "documents",
+        "DATA_TYPE": "json"
+      },
+      {
+        "COLUMN_NAME": "external_devis",
+        "DATA_TYPE": "tinyint"
+      },
+      {
+        "COLUMN_NAME": "created_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "updated_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "deleted_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "is_translation",
+        "DATA_TYPE": "tinyint"
+      },
+      {
+        "COLUMN_NAME": "original_id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "is_duplicate",
+        "DATA_TYPE": "tinyint"
+      },
+      {
+        "COLUMN_NAME": "presentation",
+        "DATA_TYPE": "text"
+      },
+      {
+        "COLUMN_NAME": "conditions",
+        "DATA_TYPE": "text"
+      },
+      {
+        "COLUMN_NAME": "required_documents",
+        "DATA_TYPE": "text"
+      },
+      {
+        "COLUMN_NAME": "sales_arguments",
+        "DATA_TYPE": "text"
+      },
+      {
+        "COLUMN_NAME": "useful_links",
+        "DATA_TYPE": "json"
+      },
+      {
+        "COLUMN_NAME": "pieces",
+        "DATA_TYPE": "json"
+      },
+      {
+        "COLUMN_NAME": "commission",
+        "DATA_TYPE": "tinyint"
+      },
+      {
+        "COLUMN_NAME": "commission_rate",
+        "DATA_TYPE": "decimal"
+      },
+      {
+        "COLUMN_NAME": "is_imported",
+        "DATA_TYPE": "tinyint"
+      },
+      {
+        "COLUMN_NAME": "is_archived",
+        "DATA_TYPE": "tinyint"
+      }
+    ]
+  },
+  "prestations_families_count": {
+    "label": "prestations_families_count",
+    "ok": true,
+    "rows": [
+      {
+        "n": 934
+      }
+    ]
+  },
+  "conversations_count": {
+    "label": "conversations_count",
+    "ok": true,
+    "rows": [
+      {
+        "n_conv": 2117,
+        "n_msg": 2760
+      }
+    ]
+  }
+}

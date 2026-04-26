@@ -1,0 +1,864 @@
+{
+  "roles_list": {
+    "label": "roles_list",
+    "ok": true,
+    "rows": [
+      {
+        "id": 1,
+        "name": "Super-Admin",
+        "guard_name": "web",
+        "created_at": "2023-01-20 17:55:51",
+        "updated_at": "2023-01-20 17:55:51"
+      },
+      {
+        "id": 2,
+        "name": "assistant",
+        "guard_name": "web",
+        "created_at": "2023-09-18 13:12:15",
+        "updated_at": "2023-09-18 13:12:15"
+      },
+      {
+        "id": 3,
+        "name": "reseller",
+        "guard_name": "web",
+        "created_at": "2023-09-22 16:37:13",
+        "updated_at": "2023-09-22 16:37:13"
+      }
+    ]
+  },
+  "model_has_roles_count": {
+    "label": "model_has_roles_count",
+    "ok": true,
+    "rows": [
+      {
+        "model_type": "App\\Models\\User",
+        "role_id": 2,
+        "n": 72
+      },
+      {
+        "model_type": "App\\Models\\User",
+        "role_id": 3,
+        "n": 26
+      },
+      {
+        "model_type": "App\\Models\\User",
+        "role_id": 1,
+        "n": 5
+      }
+    ]
+  },
+  "users_with_roles_sample": {
+    "label": "users_with_roles_sample",
+    "ok": true,
+    "rows": [
+      {
+        "id": 2,
+        "name": "Ali Touati",
+        "is_active": 1,
+        "roles": "Super-Admin"
+      },
+      {
+        "id": 4,
+        "name": "Hélène Villers",
+        "is_active": 1,
+        "roles": "assistant"
+      },
+      {
+        "id": 11,
+        "name": "Ibtissem SABRI",
+        "is_active": 1,
+        "roles": "assistant"
+      },
+      {
+        "id": 14,
+        "name": "Echikr Roman",
+        "is_active": 1,
+        "roles": "assistant"
+      },
+      {
+        "id": 17,
+        "name": "Hanan kessir",
+        "is_active": 1,
+        "roles": "assistant"
+      },
+      {
+        "id": 25,
+        "name": "Sidali Nadji",
+        "is_active": 1,
+        "roles": "Super-Admin"
+      },
+      {
+        "id": 29,
+        "name": "Thouhdikt Salmi",
+        "is_active": 1,
+        "roles": "assistant"
+      },
+      {
+        "id": 36,
+        "name": "Horizon Center",
+        "is_active": 1,
+        "roles": "reseller"
+      },
+      {
+        "id": 40,
+        "name": "Hammani souhaila",
+        "is_active": 1,
+        "roles": "reseller"
+      },
+      {
+        "id": 42,
+        "name": "sidali test partenair",
+        "is_active": 1,
+        "roles": "reseller"
+      },
+      {
+        "id": 45,
+        "name": "Debza Djalil",
+        "is_active": 1,
+        "roles": "reseller"
+      },
+      {
+        "id": 46,
+        "name": "Omar KOKACH",
+        "is_active": 1,
+        "roles": "reseller"
+      },
+      {
+        "id": 49,
+        "name": "Mhatli Anis",
+        "is_active": 1,
+        "roles": "reseller"
+      },
+      {
+        "id": 50,
+        "name": "Alili Hanane",
+        "is_active": 1,
+        "roles": "assistant"
+      },
+      {
+        "id": 54,
+        "name": "Riad Ferhati",
+        "is_active": 1,
+        "roles": "Super-Admin"
+      },
+      {
+        "id": 64,
+        "name": "Diallo Isaaga",
+        "is_active": 1,
+        "roles": "assistant"
+      },
+      {
+        "id": 65,
+        "name": "Benjamin Gacon",
+        "is_active": 1,
+        "roles": "assistant"
+      },
+      {
+        "id": 71,
+        "name": "Sarah Kour ",
+        "is_active": 1,
+        "roles": "reseller"
+      },
+      {
+        "id": 73,
+        "name": "Ezzine nacera",
+        "is_active": 1,
+        "roles": "assistant"
+      },
+      {
+        "id": 76,
+        "name": "Abdelbasset Djitli",
+        "is_active": 1,
+        "roles": "assistant"
+      },
+      {
+        "id": 79,
+        "name": "Aouag Tebet Eddine",
+        "is_active": 1,
+        "roles": "reseller"
+      },
+      {
+        "id": 80,
+        "name": "Khelfi Yannis",
+        "is_active": 1,
+        "roles": "assistant"
+      },
+      {
+        "id": 83,
+        "name": "Ouaiba Bahous",
+        "is_active": 1,
+        "roles": "assistant"
+      },
+      {
+        "id": 90,
+        "name": "Alia",
+        "is_active": 1,
+        "roles": "assistant"
+      },
+      {
+        "id": 92,
+        "name": "Meriem Hariti",
+        "is_active": 1,
+        "roles": "assistant"
+      },
+      {
+        "id": 95,
+        "name": "ZAINEB Gaceur",
+        "is_active": 1,
+        "roles": "reseller"
+      },
+      {
+        "id": 97,
+        "name": "Boulahcen Lamia",
+        "is_active": 1,
+        "roles": "reseller"
+      },
+      {
+        "id": 98,
+        "name": "El Ouatri Hicham",
+        "is_active": 1,
+        "roles": "reseller"
+      },
+      {
+        "id": 101,
+        "name": "Ania Rahmani",
+        "is_active": 1,
+        "roles": "assistant"
+      },
+      {
+        "id": 102,
+        "name": "Abdelaziz Benmehenni",
+        "is_active": 1,
+        "roles": "reseller"
+      },
+      {
+        "id": 103,
+        "name": "Bensehil Lila",
+        "is_active": 1,
+        "roles": "reseller"
+      },
+      {
+        "id": 104,
+        "name": "Faiza Smaini",
+        "is_active": 1,
+        "roles": "assistant"
+      },
+      {
+        "id": 107,
+        "name": "kenza ADJALI",
+        "is_active": 1,
+        "roles": "assistant"
+      },
+      {
+        "id": 110,
+        "name": "Bouchetaoui Rayane",
+        "is_active": 1,
+        "roles": "assistant"
+      },
+      {
+        "id": 111,
+        "name": "Fafa Meghraoui",
+        "is_active": 1,
+        "roles": "assistant"
+      },
+      {
+        "id": 112,
+        "name": "Mohamed Ben Yacoub",
+        "is_active": 1,
+        "roles": "reseller"
+      },
+      {
+        "id": 113,
+        "name": "Bensadok El Hocine",
+        "is_active": 1,
+        "roles": "reseller"
+      },
+      {
+        "id": 114,
+        "name": "TERKI Mounia",
+        "is_active": 1,
+        "roles": "assistant"
+      },
+      {
+        "id": 115,
+        "name": "Mohammed BENGHELLAB",
+        "is_active": 1,
+        "roles": "reseller"
+      },
+      {
+        "id": 116,
+        "name": "Taibi Houari",
+        "is_active": 1,
+        "roles": "reseller"
+      }
+    ]
+  },
+  "users_columns": {
+    "label": "users_columns",
+    "ok": true,
+    "rows": [
+      {
+        "COLUMN_NAME": "id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "name",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "email",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "tel",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "emergency_tel",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "address",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "email_verified_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "password",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "remember_token",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "created_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "updated_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "deleted_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "is_active",
+        "DATA_TYPE": "tinyint"
+      },
+      {
+        "COLUMN_NAME": "two_factor_code",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "two_factor_expires_at",
+        "DATA_TYPE": "datetime"
+      },
+      {
+        "COLUMN_NAME": "hidden",
+        "DATA_TYPE": "tinyint"
+      },
+      {
+        "COLUMN_NAME": "referral_link",
+        "DATA_TYPE": "tinytext"
+      },
+      {
+        "COLUMN_NAME": "referral_expiry_date",
+        "DATA_TYPE": "date"
+      },
+      {
+        "COLUMN_NAME": "token",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "approved_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "approval_sent_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "job_title",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "partner_id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "partnership_starts_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "partnership_ends_at",
+        "DATA_TYPE": "timestamp"
+      }
+    ]
+  },
+  "leads_columns": {
+    "label": "leads_columns",
+    "ok": true,
+    "rows": [
+      {
+        "COLUMN_NAME": "id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "full_name",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "phone",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "email",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "channel",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "status",
+        "DATA_TYPE": "tinyint"
+      },
+      {
+        "COLUMN_NAME": "contact_date",
+        "DATA_TYPE": "date"
+      },
+      {
+        "COLUMN_NAME": "source",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "assigned_to",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "notes",
+        "DATA_TYPE": "text"
+      },
+      {
+        "COLUMN_NAME": "created_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "updated_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "deleted_at",
+        "DATA_TYPE": "timestamp"
+      }
+    ]
+  },
+  "leads_count": {
+    "label": "leads_count",
+    "ok": true,
+    "rows": [
+      {
+        "n": 1
+      }
+    ]
+  },
+  "leads_sample": {
+    "label": "leads_sample",
+    "ok": true,
+    "rows": [
+      {
+        "id": 1,
+        "full_name": "SID ALI NADJI",
+        "phone": "+447460740008",
+        "email": "sidali.nadji@gmail.com",
+        "channel": "Appel téléphonique",
+        "status": 4,
+        "contact_date": "2026-04-24",
+        "source": "",
+        "assigned_to": 101,
+        "notes": "",
+        "created_at": "2026-04-24 03:02:03",
+        "updated_at": "2026-04-24 03:02:08",
+        "deleted_at": "2026-04-24 03:02:08"
+      }
+    ]
+  },
+  "tasks_columns": {
+    "label": "tasks_columns",
+    "ok": true,
+    "rows": [
+      {
+        "COLUMN_NAME": "id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "name",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "prestation_id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "created_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "updated_at",
+        "DATA_TYPE": "timestamp"
+      }
+    ]
+  },
+  "tasks_sample": {
+    "label": "tasks_sample",
+    "ok": true,
+    "rows": [
+      {
+        "id": 288,
+        "name": "2 ans",
+        "prestation_id": 3126,
+        "created_at": "2026-04-15 12:05:29",
+        "updated_at": "2026-04-15 12:05:29"
+      },
+      {
+        "id": 287,
+        "name": "2 ans",
+        "prestation_id": 3121,
+        "created_at": "2026-04-13 12:44:27",
+        "updated_at": "2026-04-13 12:44:27"
+      },
+      {
+        "id": 286,
+        "name": "2 ans",
+        "prestation_id": 3112,
+        "created_at": "2026-04-10 15:29:50",
+        "updated_at": "2026-04-10 15:29:50"
+      }
+    ]
+  },
+  "order_task_columns": {
+    "label": "order_task_columns",
+    "ok": true,
+    "rows": [
+      {
+        "COLUMN_NAME": "id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "task_id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "order_id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "state",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "created_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "updated_at",
+        "DATA_TYPE": "timestamp"
+      }
+    ]
+  },
+  "order_status_reminders_columns": {
+    "label": "order_status_reminders_columns",
+    "ok": true,
+    "rows": [
+      {
+        "COLUMN_NAME": "id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "last_sent_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "order_id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "status_reminder_setting_id",
+        "DATA_TYPE": "bigint"
+      },
+      {
+        "COLUMN_NAME": "created_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "updated_at",
+        "DATA_TYPE": "timestamp"
+      }
+    ]
+  },
+  "order_status_reminders_sample": {
+    "label": "order_status_reminders_sample",
+    "ok": true,
+    "rows": []
+  },
+  "scheduled_notifications_columns": {
+    "label": "scheduled_notifications_columns",
+    "ok": true,
+    "rows": [
+      {
+        "COLUMN_NAME": "id",
+        "DATA_TYPE": "int"
+      },
+      {
+        "COLUMN_NAME": "target_id",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "target_type",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "target",
+        "DATA_TYPE": "text"
+      },
+      {
+        "COLUMN_NAME": "notification_type",
+        "DATA_TYPE": "varchar"
+      },
+      {
+        "COLUMN_NAME": "notification",
+        "DATA_TYPE": "text"
+      },
+      {
+        "COLUMN_NAME": "send_at",
+        "DATA_TYPE": "datetime"
+      },
+      {
+        "COLUMN_NAME": "sent_at",
+        "DATA_TYPE": "datetime"
+      },
+      {
+        "COLUMN_NAME": "rescheduled_at",
+        "DATA_TYPE": "datetime"
+      },
+      {
+        "COLUMN_NAME": "cancelled_at",
+        "DATA_TYPE": "datetime"
+      },
+      {
+        "COLUMN_NAME": "created_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "updated_at",
+        "DATA_TYPE": "timestamp"
+      },
+      {
+        "COLUMN_NAME": "meta",
+        "DATA_TYPE": "json"
+      }
+    ]
+  },
+  "scheduled_notifications_sample": {
+    "label": "scheduled_notifications_sample",
+    "ok": true,
+    "rows": [
+      {
+        "id": 4967,
+        "target_id": "29",
+        "target_type": "App\\Models\\User",
+        "target": "O:45:\"Illuminate\\Contracts\\Database\\ModelIdentifier\":5:{s:5:\"class\";s:15:\"App\\Models\\User\";s:2:\"id\";i:29;s:9:\"relations\";a:1:{i:0;s:5:\"roles\";}s:10:\"connection\";s:5:\"mysql\";s:15:\"collectionClass\";N;}",
+        "notification_type": "App\\Notifications\\ReminderNotification",
+        "notification": "O:38:\"App\\Notifications\\ReminderNotification\":1:{s:4:\"data\";a:7:{s:5:\"title\";s:136:\"Le dossier sera envoyé au client en début de semaine, avec les consignes nécessaires pour le jour de son rendez-vous .rappel activé \";s:3:\"url\";s:76:\"https://argenteuil.paperasse.co/orders/9926/edit?show=history&message=191492\";s:4:\"date\";s:10:\"2026-04-27\";s:4:\"time\";s:5:\"15:12\";s:4:\"note\";s:143:\"<p>Le dossier sera envoyé au client en début de semaine, avec les consignes nécessaires pour le jour de son rendez-vous .rappel activé </p>\";s:7:\"alertAt\";N;s:8:\"metadata\";a:0:{}}}",
+        "send_at": "2026-04-27 15:12:00",
+        "sent_at": null,
+        "rescheduled_at": null,
+        "cancelled_at": null,
+        "created_at": "2026-04-24 17:12:12",
+        "updated_at": "2026-04-24 17:12:12",
+        "meta": {
+          "type": "reminder",
+          "completed": false
+        }
+      },
+      {
+        "id": 4966,
+        "target_id": "104",
+        "target_type": "App\\Models\\User",
+        "target": "O:45:\"Illuminate\\Contracts\\Database\\ModelIdentifier\":5:{s:5:\"class\";s:15:\"App\\Models\\User\";s:2:\"id\";i:104;s:9:\"relations\";a:1:{i:0;s:5:\"roles\";}s:10:\"connection\";s:5:\"mysql\";s:15:\"collectionClass\";N;}",
+        "notification_type": "App\\Notifications\\ReminderNotification",
+        "notification": "O:38:\"App\\Notifications\\ReminderNotification\":1:{s:4:\"data\";a:7:{s:5:\"title\";s:4:\"voir\";s:3:\"url\";s:49:\"https://argenteuil.paperasse.co/orders/10159/edit\";s:4:\"date\";s:10:\"2026-04-24\";s:4:\"time\";s:5:\"18:00\";s:4:\"note\";s:0:\"\";s:7:\"alertAt\";N;s:8:\"metadata\";a:0:{}}}",
+        "send_at": "2026-04-24 18:00:00",
+        "sent_at": "2026-04-24 18:00:56",
+        "rescheduled_at": null,
+        "cancelled_at": null,
+        "created_at": "2026-04-24 15:13:29",
+        "updated_at": "2026-04-24 18:00:56",
+        "meta": {
+          "type": "reminder",
+          "completed": false
+        }
+      },
+      {
+        "id": 4965,
+        "target_id": "104",
+        "target_type": "App\\Models\\User",
+        "target": "O:45:\"Illuminate\\Contracts\\Database\\ModelIdentifier\":5:{s:5:\"class\";s:15:\"App\\Models\\User\";s:2:\"id\";i:104;s:9:\"relations\";a:1:{i:0;s:5:\"roles\";}s:10:\"connection\";s:5:\"mysql\";s:15:\"collectionClass\";N;}",
+        "notification_type": "App\\Notifications\\ReminderNotification",
+        "notification": "O:38:\"App\\Notifications\\ReminderNotification\":1:{s:4:\"data\";a:7:{s:5:\"title\";s:5:\"ANTS \";s:3:\"url\";s:49:\"https://argenteuil.paperasse.co/orders/10442/edit\";s:4:\"date\";s:10:\"2026-05-01\";s:4:\"time\";s:5:\"08:30\";s:4:\"note\";s:0:\"\";s:7:\"alertAt\";N;s:8:\"metadata\";a:0:{}}}",
+        "send_at": "2026-05-01 08:30:00",
+        "sent_at": null,
+        "rescheduled_at": null,
+        "cancelled_at": null,
+        "created_at": "2026-04-24 15:10:24",
+        "updated_at": "2026-04-24 15:10:24",
+        "meta": {
+          "type": "reminder",
+          "completed": false
+        }
+      }
+    ]
+  },
+  "ca_factured_check": {
+    "label": "ca_factured_check",
+    "ok": true,
+    "rows": [
+      {
+        "n_orders": 9901,
+        "ca_factured_total": "2386813.57",
+        "ca_factured_hors_annul": "2274209.47"
+      }
+    ]
+  },
+  "payments_orphans": {
+    "label": "payments_orphans",
+    "ok": true,
+    "rows": [
+      {
+        "payments_no_order": 164,
+        "payments_dangling": 0
+      }
+    ]
+  },
+  "orders_no_payment": {
+    "label": "orders_no_payment",
+    "ok": true,
+    "rows": [
+      {
+        "n": 3185
+      }
+    ]
+  },
+  "duplicate_clients_by_email": {
+    "label": "duplicate_clients_by_email",
+    "ok": true,
+    "rows": [
+      {
+        "email": "nc",
+        "n": 23
+      },
+      {
+        "email": "paperasse.argenteuil@gmail.com",
+        "n": 12
+      },
+      {
+        "email": "a.touati1983@gmail.com",
+        "n": 6
+      },
+      {
+        "email": "narimanemzata@gmail.com",
+        "n": 6
+      },
+      {
+        "email": "adamkarlpar@gmail.com",
+        "n": 5
+      },
+      {
+        "email": "randarahal6@gmail.com",
+        "n": 5
+      },
+      {
+        "email": "kasemhamad@icloud.com",
+        "n": 4
+      },
+      {
+        "email": "jeandark1072@hotmail.com",
+        "n": 4
+      },
+      {
+        "email": "nananmoha@gmail.com",
+        "n": 4
+      },
+      {
+        "email": "bilmann6@gmail.com",
+        "n": 4
+      }
+    ]
+  },
+  "ca_by_payment_type": {
+    "label": "ca_by_payment_type",
+    "ok": true,
+    "rows": [
+      {
+        "type": "cash",
+        "n_payments": 6021,
+        "total": "590748.77"
+      },
+      {
+        "type": "creditCard",
+        "n_payments": 3510,
+        "total": "333864.40"
+      },
+      {
+        "type": "transfer",
+        "n_payments": 335,
+        "total": "207464.93"
+      },
+      {
+        "type": "stripe",
+        "n_payments": 130,
+        "total": "24170.00"
+      },
+      {
+        "type": "paypal",
+        "n_payments": 136,
+        "total": "18481.05"
+      },
+      {
+        "type": "zettle ",
+        "n_payments": 63,
+        "total": "9629.00"
+      },
+      {
+        "type": "",
+        "n_payments": 50,
+        "total": "546.00"
+      },
+      {
+        "type": "fidelity",
+        "n_payments": 2,
+        "total": "10.00"
+      },
+      {
+        "type": "sponsorship",
+        "n_payments": 1,
+        "total": "0.00"
+      }
+    ]
+  },
+  "orders_with_deadline": {
+    "label": "orders_with_deadline",
+    "ok": true,
+    "rows": [
+      {
+        "n_with_deadline": 6249,
+        "oldest": "0200-08-27 17:00:22",
+        "newest": "2028-07-25 12:49:00"
+      }
+    ]
+  }
+}

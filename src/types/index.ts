@@ -7,6 +7,7 @@ export interface ChatMessage {
   content: string;
   timestamp: Date;
   data?: ResponseData;
+  suggestions?: string[];
 }
 
 // Données structurées renvoyées par le middleware
@@ -22,6 +23,7 @@ export interface MiddlewareResponse {
   texte: string;
   type_donnees?: 'tableau' | 'graphique' | 'texte';
   donnees?: Record<string, unknown>[];
+  suggestions?: string[];
 }
 
 // Configuration LLM
@@ -32,16 +34,19 @@ export interface LLMConfig {
 }
 
 // Tool/Function calling — format unifié
+export interface ToolPropertySchema {
+  type: string;
+  description?: string;
+  enum?: string[];
+  items?: ToolPropertySchema;
+}
+
 export interface ToolDefinition {
   name: string;
   description: string;
   parameters: {
     type: 'object';
-    properties: Record<string, {
-      type: string;
-      description: string;
-      enum?: string[];
-    }>;
+    properties: Record<string, ToolPropertySchema>;
     required?: string[];
   };
 }

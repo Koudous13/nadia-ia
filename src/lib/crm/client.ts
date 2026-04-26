@@ -1,5 +1,7 @@
 import { queryAll, queryOne } from './database';
 import { safeSelect, listTables, describeTables } from './safe-sql';
+import * as analytics from './analytics';
+import * as anomalies from './anomalies';
 
 const PERSON_TYPE = 'App\\Models\\Person';
 
@@ -510,6 +512,104 @@ export async function executeToolCall(
       const sql = String(args.sql ?? '');
       return safeSelect(sql);
     }
+
+    // ──── Analytics avancés ────
+    case 'get_ca_by_day':
+      return analytics.getCaByDay(args as Parameters<typeof analytics.getCaByDay>[0]);
+    case 'get_ca_factured':
+      return analytics.getCaFactured(args as Parameters<typeof analytics.getCaFactured>[0]);
+    case 'get_ca_summary':
+      return analytics.getCaSummary(args as Parameters<typeof analytics.getCaSummary>[0]);
+    case 'get_ca_by_payment_type':
+      return analytics.getCaByPaymentType(args as Parameters<typeof analytics.getCaByPaymentType>[0]);
+    case 'get_ca_by_prestation':
+      return analytics.getCaByPrestation(args as Parameters<typeof analytics.getCaByPrestation>[0]);
+    case 'get_ca_by_category':
+      return analytics.getCaByCategory(args as Parameters<typeof analytics.getCaByCategory>[0]);
+    case 'compare_periods':
+      return analytics.comparePeriods(args as Parameters<typeof analytics.comparePeriods>[0]);
+    case 'get_average_basket':
+      return analytics.getAverageBasket(args as Parameters<typeof analytics.getAverageBasket>[0]);
+    case 'get_average_payment':
+      return analytics.getAveragePayment(args as Parameters<typeof analytics.getAveragePayment>[0]);
+    case 'get_conversion_rate_by_user':
+      return analytics.getConversionRateByUser(args as Parameters<typeof analytics.getConversionRateByUser>[0]);
+    case 'get_top_vendors_by_prestation':
+      return analytics.getTopVendorsByPrestation(args as Parameters<typeof analytics.getTopVendorsByPrestation>[0]);
+    case 'get_top_vendors_by_factured':
+      return analytics.getTopVendorsByFactured(args as Parameters<typeof analytics.getTopVendorsByFactured>[0]);
+    case 'get_top_users_by_payment_type':
+      return analytics.getTopUsersByPaymentType(args as Parameters<typeof analytics.getTopUsersByPaymentType>[0]);
+    case 'compare_users_periods':
+      return analytics.compareUsersPeriods(args as Parameters<typeof analytics.compareUsersPeriods>[0]);
+    case 'get_user_daily_average':
+      return analytics.getUserDailyAverage(args as Parameters<typeof analytics.getUserDailyAverage>[0]);
+    case 'get_volume_vs_delay_by_user':
+      return analytics.getVolumeVsDelayByUser();
+    case 'get_volume_vs_cancellations_by_user':
+      return analytics.getVolumeVsCancellationsByUser();
+    case 'get_processing_time_by_user':
+      return analytics.getProcessingTimeByUser(args as Parameters<typeof analytics.getProcessingTimeByUser>[0]);
+    case 'get_average_processing_time':
+      return analytics.getAverageProcessingTime();
+    case 'get_overdue_orders':
+      return analytics.getOverdueOrders(args as Parameters<typeof analytics.getOverdueOrders>[0]);
+    case 'get_orders_blocked':
+      return analytics.getOrdersBlocked(args as Parameters<typeof analytics.getOrdersBlocked>[0]);
+    case 'get_orders_closed_on_date':
+      return analytics.getOrdersClosedOnDate(args as Parameters<typeof analytics.getOrdersClosedOnDate>[0]);
+    case 'get_orders_by_prestation':
+      return analytics.getOrdersByPrestation(args as Parameters<typeof analytics.getOrdersByPrestation>[0]);
+    case 'get_ca_by_prestation_and_payment':
+      return analytics.getCaByPrestationAndPayment(args as Parameters<typeof analytics.getCaByPrestationAndPayment>[0]);
+
+    // ──── Anomalies / paiements ────
+    case 'get_partial_payments':
+      return anomalies.getPartialPayments(args as Parameters<typeof anomalies.getPartialPayments>[0]);
+    case 'get_outstanding_balance':
+      return anomalies.getOutstandingBalance(args as Parameters<typeof anomalies.getOutstandingBalance>[0]);
+    case 'get_clients_with_balance':
+      return anomalies.getClientsWithBalance(args as Parameters<typeof anomalies.getClientsWithBalance>[0]);
+    case 'get_payments_without_order':
+      return anomalies.getPaymentsWithoutOrder();
+    case 'get_orders_without_payment':
+      return anomalies.getOrdersWithoutPayment(args as Parameters<typeof anomalies.getOrdersWithoutPayment>[0]);
+    case 'get_orders_paid_not_treated':
+      return anomalies.getOrdersPaidNotTreated(args as Parameters<typeof anomalies.getOrdersPaidNotTreated>[0]);
+    case 'get_orders_completed_not_paid':
+      return anomalies.getOrdersCompletedNotPaid();
+    case 'get_inconsistent_amounts':
+      return anomalies.getInconsistentAmounts();
+    case 'get_orders_without_user':
+      return anomalies.getOrdersWithoutUser();
+    case 'get_orders_without_prestation':
+      return anomalies.getOrdersWithoutPrestation();
+    case 'get_duplicate_clients':
+      return anomalies.getDuplicateClients(args as Parameters<typeof anomalies.getDuplicateClients>[0]);
+    case 'get_duplicate_payments':
+      return anomalies.getDuplicatePayments();
+    case 'get_unpaid_quotes':
+      return anomalies.getUnpaidQuotes(args as Parameters<typeof anomalies.getUnpaidQuotes>[0]);
+    case 'get_top_clients':
+      return anomalies.getTopClients(args as Parameters<typeof anomalies.getTopClients>[0]);
+    case 'get_clients_with_multiple_orders':
+      return anomalies.getClientsWithMultipleOrders(args as Parameters<typeof anomalies.getClientsWithMultipleOrders>[0]);
+    case 'get_inactive_clients':
+      return anomalies.getInactiveClients(args as Parameters<typeof anomalies.getInactiveClients>[0]);
+    case 'get_top_users_by_clients':
+      return anomalies.getTopUsersByClients(args as Parameters<typeof anomalies.getTopUsersByClients>[0]);
+    case 'get_unconverted_quotes_by_user':
+      return anomalies.getUnconvertedQuotesByUser(args as Parameters<typeof anomalies.getUnconvertedQuotesByUser>[0]);
+    case 'get_orders_needing_docs_by_user':
+      return anomalies.getOrdersNeedingDocsByUser();
+    case 'get_scheduled_reminders':
+      return anomalies.getScheduledReminders(args as Parameters<typeof anomalies.getScheduledReminders>[0]);
+    case 'get_monthly_summary':
+      return anomalies.getMonthlySummary(args as Parameters<typeof anomalies.getMonthlySummary>[0]);
+    case 'get_loss_analysis':
+      return anomalies.getLossAnalysis();
+    case 'get_time_loss_analysis':
+      return anomalies.getTimeLossAnalysis();
 
     default:
       throw new Error(`Outil inconnu: ${toolName}`);

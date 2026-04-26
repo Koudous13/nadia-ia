@@ -1,0 +1,661 @@
+{
+  "_meta": {
+    "version": "1.0.0",
+    "generated": "2026-04-25",
+    "source": "CAHIER DES CHARGES_ENTRAINEMENT_AGENT_IA.docx",
+    "total_questions": 120,
+    "categories": 8,
+    "schema_facts": {
+      "users_roles": "3 rôles : Super-Admin, assistant, reseller. Pas de distinction commercial/admin (job_title quasi vide). 'Vendeurs' = roles ∈ ('assistant','Super-Admin') et is_active=1.",
+      "payments_types": ["cash", "creditCard", "transfer", "paypal", "stripe", "zettle ", "fidelity", "sponsorship"],
+      "payment_status": "INEXISTANT — la table payments ne contient que les paiements ENCAISSÉS. Pas de notion 'échoué'/'en attente' au niveau payments.",
+      "orders_states": "1 = devis (DEV), 2 = devis (variant), 3 = facture/commande (FACT). state IN (1,2) = devis ; state=3 = commande facturée.",
+      "orders_statuts": ["Terminée", "Attente de prise en charge", "Expédié", "Annulée", "Attente retour administration", "Livrée", "Attente rendez-vous administratif", "Attente retour client (Prise en charge)", "Attente réglement (Prise en charge)", "Attente retour client (En cours de traitement)", "En cours de traitement", "Prise en charge", "Prêt pour expédition", "Validé par le client (a définir)", "Attente réglement (En cours de traitement)", "Envoyée électroniquement", "Attente validation hiérarchique", "Validé par l'hiérarchie"],
+      "ca_factured_formula": "SUM(CAST(orders.total_price->>'$.amount' AS DECIMAL(20,2)))/100, filtré statuts <> 'Annulée'",
+      "ca_encaisse_formula": "SUM(CAST(payments.amount->>'$.amount' AS DECIMAL(20,2)))/100",
+      "leads_table_status": "Quasi vide (1 ligne soft-deleted) — la notion de 'prospect' est traitée via clients dont customer_type=Person sans commande payée.",
+      "scheduled_notifications": "Source de vérité pour 'rappels/relances' (send_at, sent_at, cancelled_at). Notification body sérialisé PHP, non décodable depuis Node — on n'expose que les dates.",
+      "duplicate_emails_warning": "Email 'nc' utilisé 23 fois, plusieurs emails partagés (entreprise, famille). Doublons à filtrer en excluant 'nc' et emails contenant 'paperasse'."
+    },
+    "answer_format_rules": [
+      "Toujours préciser la période analysée dans la réponse",
+      "Distinguer CA encaissé (payments) vs CA facturé (orders.total_price)",
+      "Refuser de répondre si l'outil renvoie un tableau vide → 'Aucun résultat trouvé pour <période>'",
+      "Pour les listings >5 lignes, utiliser le marqueur [TABLE]",
+      "Pour les évolutions temporelles, utiliser [CHART:line] ; pour les répartitions, [CHART:bar] ou [CHART:pie]"
+    ]
+  },
+  "questions": [
+    {
+      "id": "ca-01", "cat": "ca", "q": "Quel est le chiffre d'affaires encaissé d'avril 2026 ?",
+      "intent": "ca_encaisse_periode", "tool": "get_ca",
+      "args": { "date_from": "2026-04-01", "date_to": "2026-04-30" },
+      "expected_format": "texte avec montant + nb commandes payées + période",
+      "ref_sql": "SELECT ROUND(SUM(CAST(p.amount->>'$.amount' AS DECIMAL(20,2)))/100,2) FROM payments p JOIN orders o ON o.id=p.order_id WHERE p.created_at BETWEEN '2026-04-01' AND '2026-04-30 23:59:59' AND o.deleted_at IS NULL"
+    },
+    {
+      "id": "ca-02", "cat": "ca", "q": "Quel est le chiffre d'affaires d'avril 2026 jusqu'à aujourd'hui ?",
+      "intent": "ca_encaisse_periode", "tool": "get_ca",
+      "args": { "date_from": "2026-04-01", "date_to": "<TODAY>" },
+      "expected_format": "texte avec montant cumulé MTD"
+    },
+    {
+      "id": "ca-03", "cat": "ca", "q": "Quel est le CA du jour ?",
+      "intent": "ca_encaisse_periode", "tool": "get_ca",
+      "args": { "date_from": "<TODAY>", "date_to": "<TODAY>" },
+      "expected_format": "texte court avec montant"
+    },
+    {
+      "id": "ca-04", "cat": "ca", "q": "CA entre le 1er et le 15 avril 2026 ?",
+      "intent": "ca_encaisse_periode", "tool": "get_ca",
+      "args": { "date_from": "2026-04-01", "date_to": "2026-04-15" }
+    },
+    {
+      "id": "ca-05", "cat": "ca", "q": "CA par jour en avril 2026 ?",
+      "intent": "ca_encaisse_par_jour", "tool": "get_ca_by_day",
+      "args": { "date_from": "2026-04-01", "date_to": "2026-04-30" },
+      "expected_format": "[CHART:line] sur dates"
+    },
+    {
+      "id": "ca-06", "cat": "ca", "q": "Meilleur jour du mois ?",
+      "intent": "best_day", "tool": "get_ca_by_day",
+      "args": { "date_from": "<MONTH_START>", "date_to": "<MONTH_END>" },
+      "expected_format": "texte avec date + montant",
+      "post_process": "ORDER BY ca DESC LIMIT 1"
+    },
+    {
+      "id": "ca-07", "cat": "ca", "q": "Pire jour du mois ?",
+      "intent": "worst_day", "tool": "get_ca_by_day",
+      "args": { "date_from": "<MONTH_START>", "date_to": "<MONTH_END>" },
+      "post_process": "ORDER BY ca ASC LIMIT 1, exclure jours à 0"
+    },
+    {
+      "id": "ca-08", "cat": "ca", "q": "Panier moyen avril 2026 ?",
+      "intent": "average_basket", "tool": "get_average_basket",
+      "args": { "date_from": "2026-04-01", "date_to": "2026-04-30" },
+      "expected_format": "texte : CA facturé moyen par commande (hors annulées)"
+    },
+    {
+      "id": "ca-09", "cat": "ca", "q": "CA moyen par commande ?",
+      "intent": "average_basket_global", "tool": "get_average_basket",
+      "args": {},
+      "expected_format": "texte avec moyenne globale"
+    },
+    {
+      "id": "ca-10", "cat": "ca", "q": "CA par agent commercial ?",
+      "intent": "ca_par_agent", "tool": "get_top_vendors",
+      "args": { "limit": "20" },
+      "expected_format": "[TABLE] vendeur, ca_encaisse"
+    },
+    {
+      "id": "ca-11", "cat": "ca", "q": "CA par prestation ?",
+      "intent": "ca_par_prestation", "tool": "get_ca_by_prestation",
+      "args": { "limit": "20" },
+      "expected_format": "[TABLE] prestation, ca_encaisse, nb_commandes"
+    },
+    {
+      "id": "ca-12", "cat": "ca", "q": "CA par moyen de paiement ?",
+      "intent": "ca_par_paiement_type", "tool": "get_ca_by_payment_type",
+      "args": {},
+      "expected_format": "[TABLE] type, total, n_paiements"
+    },
+    {
+      "id": "ca-13", "cat": "ca", "q": "CA Stripe avril 2026 ?",
+      "intent": "ca_par_paiement_type_filtre", "tool": "get_ca_by_payment_type",
+      "args": { "date_from": "2026-04-01", "date_to": "2026-04-30", "type": "stripe" },
+      "expected_format": "texte : montant Stripe + nb paiements"
+    },
+    {
+      "id": "ca-14", "cat": "ca", "q": "CA PayPal avril 2026 ?",
+      "intent": "ca_par_paiement_type_filtre", "tool": "get_ca_by_payment_type",
+      "args": { "date_from": "2026-04-01", "date_to": "2026-04-30", "type": "paypal" }
+    },
+    {
+      "id": "ca-15", "cat": "ca", "q": "CA hors commandes annulées ?",
+      "intent": "ca_factured_hors_annul", "tool": "get_ca_factured",
+      "args": { "exclude_cancelled": "true" }
+    },
+    {
+      "id": "ca-16", "cat": "ca", "q": "CA encaissé vs facturé ?",
+      "intent": "ca_compare_facture_encaisse", "tool": "get_ca_summary",
+      "args": {},
+      "expected_format": "texte : CA facturé X€ / CA encaissé Y€ / Restant Z€"
+    },
+    {
+      "id": "ca-17", "cat": "ca", "q": "CA des commandes clôturées ?",
+      "intent": "ca_par_statut", "tool": "get_ca_factured",
+      "args": { "status": "Terminée" }
+    },
+    {
+      "id": "ca-18", "cat": "ca", "q": "CA des commandes en cours ?",
+      "intent": "ca_par_statut", "tool": "get_ca_factured",
+      "args": { "status_in": ["En cours de traitement", "Prise en charge", "Attente de prise en charge"] }
+    },
+    {
+      "id": "ca-19", "cat": "ca", "q": "Évolution du CA sur le mois ?",
+      "intent": "ca_evolution", "tool": "get_ca_by_day",
+      "args": { "date_from": "<MONTH_START>", "date_to": "<TODAY>" },
+      "expected_format": "[CHART:line]"
+    },
+    {
+      "id": "ca-20", "cat": "ca", "q": "Comparaison avril vs mars ?",
+      "intent": "ca_compare_periodes", "tool": "compare_periods",
+      "args": { "from_a": "2026-04-01", "to_a": "2026-04-30", "from_b": "2026-03-01", "to_b": "2026-03-31" },
+      "expected_format": "texte : avril X€ vs mars Y€, delta Z%"
+    },
+
+    {
+      "id": "pay-01", "cat": "paiements", "q": "Montant total encaissé avril 2026 ?",
+      "intent": "ca_encaisse_periode", "tool": "get_ca",
+      "args": { "date_from": "2026-04-01", "date_to": "2026-04-30" }
+    },
+    {
+      "id": "pay-02", "cat": "paiements", "q": "Paiements Stripe totaux ?",
+      "intent": "ca_par_paiement_type_filtre", "tool": "get_ca_by_payment_type",
+      "args": { "type": "stripe" }
+    },
+    {
+      "id": "pay-03", "cat": "paiements", "q": "Paiements échoués ?",
+      "intent": "REFUS", "tool": null,
+      "expected_response": "La table payments ne contient que les paiements encaissés — pas de notion 'échoué' dans le système actuel."
+    },
+    {
+      "id": "pay-04", "cat": "paiements", "q": "Paiements en attente ?",
+      "intent": "REFUS", "tool": null,
+      "expected_response": "Pas de paiements en attente dans la DB. Si tu cherches les commandes non payées, je peux te les sortir."
+    },
+    {
+      "id": "pay-05", "cat": "paiements", "q": "Paiements partiels ?",
+      "intent": "partial_payments", "tool": "get_partial_payments",
+      "args": {},
+      "expected_format": "[TABLE] commandes avec total_paye > 0 ET total_paye < total_price"
+    },
+    {
+      "id": "pay-06", "cat": "paiements", "q": "Montant restant à encaisser ?",
+      "intent": "outstanding_balance", "tool": "get_outstanding_balance",
+      "args": {},
+      "expected_format": "texte : total_facture - total_encaisse sur commandes non annulées"
+    },
+    {
+      "id": "pay-07", "cat": "paiements", "q": "Clients avec solde dû ?",
+      "intent": "clients_with_balance", "tool": "get_clients_with_balance",
+      "args": { "limit": "50" },
+      "expected_format": "[TABLE]"
+    },
+    {
+      "id": "pay-08", "cat": "paiements", "q": "Paiements sans commande ?",
+      "intent": "anomalie_payments_orphans", "tool": "get_payments_without_order",
+      "args": {}
+    },
+    {
+      "id": "pay-09", "cat": "paiements", "q": "Commandes sans paiement ?",
+      "intent": "anomalie_orders_no_payment", "tool": "get_orders_without_payment",
+      "args": { "exclude_quotes": "true" }
+    },
+    {
+      "id": "pay-10", "cat": "paiements", "q": "Taux d'échec des paiements ?",
+      "intent": "REFUS", "tool": null,
+      "expected_response": "Pas de notion d'échec dans la table payments. Je peux te donner le ratio commandes non payées / commandes totales."
+    },
+    {
+      "id": "pay-11", "cat": "paiements", "q": "Paiement moyen par commande ?",
+      "intent": "average_payment", "tool": "get_average_payment",
+      "args": {}
+    },
+    {
+      "id": "pay-12", "cat": "paiements", "q": "Paiements par jour ?",
+      "intent": "ca_encaisse_par_jour", "tool": "get_ca_by_day",
+      "args": { "date_from": "<MONTH_START>", "date_to": "<TODAY>" }
+    },
+    {
+      "id": "pay-13", "cat": "paiements", "q": "Paiements aujourd'hui ?",
+      "intent": "ca_encaisse_periode", "tool": "get_ca",
+      "args": { "date_from": "<TODAY>", "date_to": "<TODAY>" }
+    },
+    {
+      "id": "pay-14", "cat": "paiements", "q": "Paiements cette semaine ?",
+      "intent": "ca_encaisse_periode", "tool": "get_ca",
+      "args": { "date_from": "<WEEK_START>", "date_to": "<TODAY>" }
+    },
+    {
+      "id": "pay-15", "cat": "paiements", "q": "Paiements annulés ?",
+      "intent": "REFUS", "tool": null,
+      "expected_response": "Pas de notion d'annulation au niveau paiement. Les annulations sont gérées au niveau commande (statuts='Annulée')."
+    },
+
+    {
+      "id": "com-01", "cat": "perf-commerciale", "q": "Meilleur commercial avril 2026 ?",
+      "intent": "best_user_period", "tool": "get_top_vendors",
+      "args": { "date_from": "2026-04-01", "date_to": "2026-04-30", "limit": "1" }
+    },
+    {
+      "id": "com-02", "cat": "perf-commerciale", "q": "Classement des commerciaux ?",
+      "intent": "ranking_users", "tool": "get_vendors_performance",
+      "args": {}
+    },
+    {
+      "id": "com-03", "cat": "perf-commerciale", "q": "CA par commercial ?",
+      "intent": "ca_par_user", "tool": "get_top_vendors",
+      "args": { "limit": "20" }
+    },
+    {
+      "id": "com-04", "cat": "perf-commerciale", "q": "Nombre de ventes par agent ?",
+      "intent": "orders_par_user", "tool": "get_vendors_performance",
+      "args": {}
+    },
+    {
+      "id": "com-05", "cat": "perf-commerciale", "q": "Taux de conversion par agent ?",
+      "intent": "conversion_rate", "tool": "get_conversion_rate_by_user",
+      "args": {},
+      "expected_format": "[TABLE] vendeur, devis, commandes, taux_conversion"
+    },
+    {
+      "id": "com-06", "cat": "perf-commerciale", "q": "Agent avec plus de ventes aujourd'hui ?",
+      "intent": "top_user_today", "tool": "get_top_vendors",
+      "args": { "date_from": "<TODAY>", "date_to": "<TODAY>", "limit": "1", "by": "order_date" }
+    },
+    {
+      "id": "com-07", "cat": "perf-commerciale", "q": "Agent avec meilleur panier moyen ?",
+      "intent": "best_basket_user", "tool": "get_average_basket_by_user",
+      "args": { "limit": "10" }
+    },
+    {
+      "id": "com-08", "cat": "perf-commerciale", "q": "Agent avec plus d'annulations ?",
+      "intent": "most_cancellations_user", "tool": "get_orders_by_vendor_status",
+      "args": { "status": "Annulée" }
+    },
+    {
+      "id": "com-09", "cat": "perf-commerciale", "q": "Agent le plus rentable ?",
+      "intent": "most_profitable_user", "tool": "get_top_vendors",
+      "args": { "limit": "1" }
+    },
+    {
+      "id": "com-10", "cat": "perf-commerciale", "q": "Agent en progression ?",
+      "intent": "user_progression", "tool": "compare_users_periods",
+      "args": { "from_a": "<MONTH_START>", "to_a": "<TODAY>", "from_b": "<PREV_MONTH_START>", "to_b": "<PREV_MONTH_END>" }
+    },
+    {
+      "id": "com-11", "cat": "perf-commerciale", "q": "Agent en baisse ?",
+      "intent": "user_decline", "tool": "compare_users_periods",
+      "args": { "from_a": "<MONTH_START>", "to_a": "<TODAY>", "from_b": "<PREV_MONTH_START>", "to_b": "<PREV_MONTH_END>" }
+    },
+    {
+      "id": "com-12", "cat": "perf-commerciale", "q": "Agent qui rapporte le plus par jour ?",
+      "intent": "user_avg_per_day", "tool": "get_user_daily_average",
+      "args": { "date_from": "<MONTH_START>", "date_to": "<TODAY>" }
+    },
+    {
+      "id": "com-13", "cat": "perf-commerciale", "q": "Agent qui vend le plus de titres de séjour ?",
+      "intent": "top_user_by_keyword", "tool": "get_top_vendors_by_prestation",
+      "args": { "prestation_keyword": "titre de séjour" }
+    },
+    {
+      "id": "com-14", "cat": "perf-commerciale", "q": "Agent qui vend le plus entreprises ?",
+      "intent": "top_user_by_keyword", "tool": "get_top_vendors_by_prestation",
+      "args": { "prestation_keyword": "entreprise" }
+    },
+    {
+      "id": "com-15", "cat": "perf-commerciale", "q": "Agent qui convertit le mieux après relance ?",
+      "intent": "PARTIAL_REFUS", "tool": null,
+      "expected_response": "Le système ne logge pas le lien relance → conversion. Données disponibles : nb relances envoyées (scheduled_notifications) et conversions (devis → commande), sans liaison directe."
+    },
+    {
+      "id": "com-16", "cat": "perf-commerciale", "q": "Top 5 commerciaux ?",
+      "intent": "top_users", "tool": "get_top_vendors",
+      "args": { "limit": "5" }
+    },
+    {
+      "id": "com-17", "cat": "perf-commerciale", "q": "Agent avec le plus de prospects ?",
+      "intent": "top_user_clients", "tool": "get_top_users_by_clients",
+      "args": { "limit": "10" },
+      "note": "Table leads quasi vide — utilise clients sans commande payée comme proxy"
+    },
+    {
+      "id": "com-18", "cat": "perf-commerciale", "q": "Agent avec le plus de devis non convertis ?",
+      "intent": "top_user_unconverted_quotes", "tool": "get_unconverted_quotes_by_user",
+      "args": { "limit": "10" }
+    },
+    {
+      "id": "com-19", "cat": "perf-commerciale", "q": "Agent avec le plus de CA encaissé ?",
+      "intent": "top_user_ca_encaisse", "tool": "get_top_vendors",
+      "args": { "limit": "1" }
+    },
+    {
+      "id": "com-20", "cat": "perf-commerciale", "q": "Agent avec le plus de CA facturé ?",
+      "intent": "top_user_ca_facture", "tool": "get_top_vendors_by_factured",
+      "args": { "limit": "1" }
+    },
+
+    {
+      "id": "adm-01", "cat": "perf-admin", "q": "Agent administratif le plus rapide ?",
+      "intent": "fastest_admin", "tool": "get_processing_time_by_user",
+      "args": { "limit": "1", "order": "ASC" },
+      "note": "Pas de distinction admin/commercial dans la DB — calculé sur durée moyenne created_at → status_updated_at quand statuts='Terminée'"
+    },
+    {
+      "id": "adm-02", "cat": "perf-admin", "q": "Classement des admins ?",
+      "intent": "ranking_admins", "tool": "get_processing_time_by_user",
+      "args": {}
+    },
+    {
+      "id": "adm-03", "cat": "perf-admin", "q": "Nombre de dossiers traités ?",
+      "intent": "orders_handled", "tool": "get_orders_by_status",
+      "args": {}
+    },
+    {
+      "id": "adm-04", "cat": "perf-admin", "q": "Nombre de dossiers clôturés ?",
+      "intent": "orders_closed_count", "tool": "get_orders_by_vendor_status",
+      "args": { "status": "Terminée" }
+    },
+    {
+      "id": "adm-05", "cat": "perf-admin", "q": "Délai moyen de traitement ?",
+      "intent": "average_processing_time", "tool": "get_average_processing_time",
+      "args": {}
+    },
+    {
+      "id": "adm-06", "cat": "perf-admin", "q": "Agent avec le plus de dossiers en retard ?",
+      "intent": "most_overdue_user", "tool": "get_overdue_orders_by_user",
+      "args": { "threshold_days": "30", "limit": "10" }
+    },
+    {
+      "id": "adm-07", "cat": "perf-admin", "q": "Agent avec le plus de dossiers bloqués ?",
+      "intent": "most_blocked_user", "tool": "get_orders_by_vendor_status",
+      "args": { "status": "Attente retour client (Prise en charge)" }
+    },
+    {
+      "id": "adm-08", "cat": "perf-admin", "q": "Agent avec le moins d'erreurs ?",
+      "intent": "REFUS", "tool": null,
+      "expected_response": "Pas de notion d'erreur loggée. Approximation possible : agent avec le moins de commandes annulées."
+    },
+    {
+      "id": "adm-09", "cat": "perf-admin", "q": "Agent le plus efficace ?",
+      "intent": "most_efficient_user", "tool": "get_processing_time_by_user",
+      "args": { "limit": "1", "order": "ASC" }
+    },
+    {
+      "id": "adm-10", "cat": "perf-admin", "q": "Agent qui consulte le plus de dossiers ?",
+      "intent": "PARTIAL_REFUS", "tool": null,
+      "expected_response": "Données présentes dans activity_log mais coût trop élevé (200K lignes) sans index dédié. À ajouter si besoin."
+    },
+    {
+      "id": "adm-11", "cat": "perf-admin", "q": "Agent qui modifie le plus ?",
+      "intent": "PARTIAL_REFUS", "tool": null,
+      "expected_response": "Idem — disponible via revisions/activity_log mais non exposé."
+    },
+    {
+      "id": "adm-12", "cat": "perf-admin", "q": "Agent qui clôture le plus ?",
+      "intent": "most_closing_user", "tool": "get_orders_by_vendor_status",
+      "args": { "status": "Terminée" }
+    },
+    {
+      "id": "adm-13", "cat": "perf-admin", "q": "Agent avec délai < 5 jours ?",
+      "intent": "fast_users_under_threshold", "tool": "get_processing_time_by_user",
+      "args": { "max_days": "5" }
+    },
+    {
+      "id": "adm-14", "cat": "perf-admin", "q": "Agent avec dossiers incomplets ?",
+      "intent": "users_with_incomplete_docs", "tool": "get_orders_needing_docs_by_user",
+      "args": {}
+    },
+    {
+      "id": "adm-15", "cat": "perf-admin", "q": "Agent avec performance globale meilleure ?",
+      "intent": "best_overall_user", "tool": "get_vendors_performance",
+      "args": {}
+    },
+
+    {
+      "id": "ord-01", "cat": "commandes", "q": "Nombre de commandes avril 2026 ?",
+      "intent": "orders_count_period", "tool": "get_orders_by_status",
+      "args": { "date_from": "2026-04-01", "date_to": "2026-04-30" }
+    },
+    {
+      "id": "ord-02", "cat": "commandes", "q": "Commandes aujourd'hui ?",
+      "intent": "orders_count_period", "tool": "search_orders",
+      "args": { "date_from": "<TODAY>", "date_to": "<TODAY>" }
+    },
+    {
+      "id": "ord-03", "cat": "commandes", "q": "Commandes clôturées ?",
+      "intent": "orders_by_status", "tool": "search_orders",
+      "args": { "status": "Terminée" }
+    },
+    {
+      "id": "ord-04", "cat": "commandes", "q": "Commandes annulées ?",
+      "intent": "orders_by_status", "tool": "search_orders",
+      "args": { "status": "Annulée" }
+    },
+    {
+      "id": "ord-05", "cat": "commandes", "q": "Commandes en attente ?",
+      "intent": "orders_by_status", "tool": "search_orders",
+      "args": { "status": "Attente de prise en charge" }
+    },
+    {
+      "id": "ord-06", "cat": "commandes", "q": "Commandes bloquées ?",
+      "intent": "orders_by_status_group", "tool": "get_orders_blocked",
+      "args": {}
+    },
+    {
+      "id": "ord-07", "cat": "commandes", "q": "Commandes en retard ?",
+      "intent": "overdue_orders", "tool": "get_overdue_orders",
+      "args": { "threshold_days": "30" }
+    },
+    {
+      "id": "ord-08", "cat": "commandes", "q": "Commandes non payées ?",
+      "intent": "unpaid_orders", "tool": "get_orders_without_payment",
+      "args": { "exclude_quotes": "true" }
+    },
+    {
+      "id": "ord-09", "cat": "commandes", "q": "Commandes payées non traitées ?",
+      "intent": "anomalie_paid_not_treated", "tool": "get_orders_paid_not_treated",
+      "args": {}
+    },
+    {
+      "id": "ord-10", "cat": "commandes", "q": "Commandes > 7 jours ?",
+      "intent": "aged_orders", "tool": "get_overdue_orders",
+      "args": { "threshold_days": "7", "exclude_closed": "true" }
+    },
+    {
+      "id": "ord-11", "cat": "commandes", "q": "Commandes > 30 jours ?",
+      "intent": "aged_orders", "tool": "get_overdue_orders",
+      "args": { "threshold_days": "30", "exclude_closed": "true" }
+    },
+    {
+      "id": "ord-12", "cat": "commandes", "q": "Commandes clôturées le 15 avril ?",
+      "intent": "orders_closed_on_date", "tool": "get_orders_closed_on_date",
+      "args": { "date": "2026-04-15" }
+    },
+    {
+      "id": "ord-13", "cat": "commandes", "q": "Commandes créées aujourd'hui ?",
+      "intent": "orders_created_period", "tool": "search_orders",
+      "args": { "date_from": "<TODAY>", "date_to": "<TODAY>" }
+    },
+    {
+      "id": "ord-14", "cat": "commandes", "q": "Commandes par prestation ?",
+      "intent": "orders_by_prestation", "tool": "get_orders_by_prestation",
+      "args": {}
+    },
+    {
+      "id": "ord-15", "cat": "commandes", "q": "Commandes par agent ?",
+      "intent": "orders_by_user", "tool": "get_vendors_performance",
+      "args": {}
+    },
+
+    {
+      "id": "cli-01", "cat": "clients", "q": "Clients à relancer aujourd'hui ?",
+      "intent": "clients_to_relance", "tool": "get_scheduled_reminders",
+      "args": { "date": "<TODAY>" }
+    },
+    {
+      "id": "cli-02", "cat": "clients", "q": "Prospects chauds non rappelés ?",
+      "intent": "PARTIAL_REFUS", "tool": null,
+      "expected_response": "Notion 'prospect chaud' non définie en DB. Je peux lister les devis non convertis créés depuis <7 jours."
+    },
+    {
+      "id": "cli-03", "cat": "clients", "q": "Devis non payés ?",
+      "intent": "unpaid_quotes", "tool": "get_unpaid_quotes",
+      "args": {}
+    },
+    {
+      "id": "cli-04", "cat": "clients", "q": "Clients avec paiement partiel ?",
+      "intent": "clients_partial_paid", "tool": "get_partial_payments",
+      "args": {}
+    },
+    {
+      "id": "cli-05", "cat": "clients", "q": "Clients bloqués ?",
+      "intent": "clients_blocked", "tool": "get_orders_blocked",
+      "args": { "group_by": "client" }
+    },
+    {
+      "id": "cli-06", "cat": "clients", "q": "Clients les plus rentables ?",
+      "intent": "top_clients_revenue", "tool": "get_top_clients",
+      "args": { "limit": "10", "by": "ca" }
+    },
+    {
+      "id": "cli-07", "cat": "clients", "q": "Clients avec plusieurs commandes ?",
+      "intent": "repeat_clients", "tool": "get_clients_with_multiple_orders",
+      "args": { "min": "2" }
+    },
+    {
+      "id": "cli-08", "cat": "clients", "q": "Clients abandonnés ?",
+      "intent": "inactive_clients", "tool": "get_inactive_clients",
+      "args": { "months": "6" }
+    },
+    {
+      "id": "cli-09", "cat": "clients", "q": "Clients sans réponse ?",
+      "intent": "PARTIAL_REFUS", "tool": null,
+      "expected_response": "Pas de log direct 'sans réponse'. Approximation : clients avec devis créé il y a >X jours sans paiement ni statut Terminée."
+    },
+    {
+      "id": "cli-10", "cat": "clients", "q": "Clients à fort potentiel non traités ?",
+      "intent": "high_potential_untreated", "tool": "get_unpaid_quotes",
+      "args": { "min_amount": "500" }
+    },
+
+    {
+      "id": "ano-01", "cat": "anomalies", "q": "Commandes sans paiement ?",
+      "intent": "anomalie_orders_no_payment", "tool": "get_orders_without_payment",
+      "args": { "exclude_quotes": "true" }
+    },
+    {
+      "id": "ano-02", "cat": "anomalies", "q": "Paiements sans commande ?",
+      "intent": "anomalie_payments_orphans", "tool": "get_payments_without_order",
+      "args": {}
+    },
+    {
+      "id": "ano-03", "cat": "anomalies", "q": "Doublons clients ?",
+      "intent": "duplicate_clients", "tool": "get_duplicate_clients",
+      "args": { "by": "email" }
+    },
+    {
+      "id": "ano-04", "cat": "anomalies", "q": "Doublons paiements ?",
+      "intent": "duplicate_payments", "tool": "get_duplicate_payments",
+      "args": {}
+    },
+    {
+      "id": "ano-05", "cat": "anomalies", "q": "Commandes clôturées non payées ?",
+      "intent": "anomalie_completed_unpaid", "tool": "get_orders_completed_not_paid",
+      "args": {}
+    },
+    {
+      "id": "ano-06", "cat": "anomalies", "q": "Commandes payées non traitées ?",
+      "intent": "anomalie_paid_not_treated", "tool": "get_orders_paid_not_treated",
+      "args": {}
+    },
+    {
+      "id": "ano-07", "cat": "anomalies", "q": "Montants incohérents ?",
+      "intent": "inconsistent_amounts", "tool": "get_inconsistent_amounts",
+      "args": {},
+      "note": "is_payed=1 mais total_paid=0, OU total_paye > total_price"
+    },
+    {
+      "id": "ano-08", "cat": "anomalies", "q": "Commandes sans agent ?",
+      "intent": "orders_without_user", "tool": "get_orders_without_user",
+      "args": {}
+    },
+    {
+      "id": "ano-09", "cat": "anomalies", "q": "Commandes sans prestation ?",
+      "intent": "orders_without_prestation", "tool": "get_orders_without_prestation",
+      "args": {}
+    },
+    {
+      "id": "ano-10", "cat": "anomalies", "q": "Dossiers trop anciens ?",
+      "intent": "very_old_orders", "tool": "get_overdue_orders",
+      "args": { "threshold_days": "90", "exclude_closed": "true" }
+    },
+
+    {
+      "id": "adv-01", "cat": "avancees", "q": "Top agent sur commandes payées Stripe avril ?",
+      "intent": "top_user_by_payment_type_period", "tool": "get_top_users_by_payment_type",
+      "args": { "type": "stripe", "date_from": "2026-04-01", "date_to": "2026-04-30", "limit": "5" }
+    },
+    {
+      "id": "adv-02", "cat": "avancees", "q": "Agent ayant clôturé le plus de dossiers < 7 jours ?",
+      "intent": "fast_closing_user", "tool": "get_processing_time_by_user",
+      "args": { "max_days": "7", "order": "DESC" }
+    },
+    {
+      "id": "adv-03", "cat": "avancees", "q": "Commandes payées mais non clôturées ?",
+      "intent": "anomalie_paid_not_closed", "tool": "get_orders_paid_not_treated",
+      "args": {}
+    },
+    {
+      "id": "adv-04", "cat": "avancees", "q": "Clients ayant payé mais dossier non terminé ?",
+      "intent": "anomalie_paid_not_closed_clients", "tool": "get_orders_paid_not_treated",
+      "args": { "group_by": "client" }
+    },
+    {
+      "id": "adv-05", "cat": "avancees", "q": "Agent qui vend beaucoup mais génère du retard ?",
+      "intent": "high_volume_high_delay", "tool": "get_volume_vs_delay_by_user",
+      "args": {}
+    },
+    {
+      "id": "adv-06", "cat": "avancees", "q": "Agent rapide mais peu rentable ?",
+      "intent": "fast_low_revenue", "tool": "get_volume_vs_delay_by_user",
+      "args": {}
+    },
+    {
+      "id": "adv-07", "cat": "avancees", "q": "CA par prestation + paiement ?",
+      "intent": "ca_par_prestation_et_paiement", "tool": "get_ca_by_prestation_and_payment",
+      "args": {}
+    },
+    {
+      "id": "adv-08", "cat": "avancees", "q": "Agents avec forte activité mais faible résultat ?",
+      "intent": "high_activity_low_revenue", "tool": "get_volume_vs_delay_by_user",
+      "args": {}
+    },
+    {
+      "id": "adv-09", "cat": "avancees", "q": "Commandes Stripe non traitées ?",
+      "intent": "stripe_paid_not_treated", "tool": "get_orders_paid_not_treated",
+      "args": { "payment_type": "stripe" }
+    },
+    {
+      "id": "adv-10", "cat": "avancees", "q": "Dossiers à fort CA bloqués ?",
+      "intent": "high_value_blocked", "tool": "get_orders_blocked",
+      "args": { "min_amount": "500" }
+    },
+    {
+      "id": "adv-11", "cat": "avancees", "q": "Agents avec fort CA mais taux d'annulation élevé ?",
+      "intent": "high_revenue_high_cancel", "tool": "get_volume_vs_cancellations_by_user",
+      "args": {}
+    },
+    {
+      "id": "adv-12", "cat": "avancees", "q": "Comparaison performance admin vs commercial ?",
+      "intent": "PARTIAL_REFUS", "tool": null,
+      "expected_response": "Pas de distinction admin/commercial dans la DB (tous les actifs sont 'assistant'). Je peux comparer délai de traitement vs CA généré."
+    },
+    {
+      "id": "adv-13", "cat": "avancees", "q": "Analyse complète du mois ?",
+      "intent": "monthly_summary", "tool": "get_monthly_summary",
+      "args": { "month": "<CURRENT_MONTH>" }
+    },
+    {
+      "id": "adv-14", "cat": "avancees", "q": "Où perd-on de l'argent ?",
+      "intent": "loss_analysis", "tool": "get_loss_analysis",
+      "args": {}
+    },
+    {
+      "id": "adv-15", "cat": "avancees", "q": "Où perd-on du temps ?",
+      "intent": "time_loss_analysis", "tool": "get_time_loss_analysis",
+      "args": {}
+    }
+  ]
+}

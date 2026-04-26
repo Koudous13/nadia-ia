@@ -8,6 +8,7 @@ import { Sidebar } from './Sidebar';
 import { TopHeader } from './TopHeader';
 import { ChatInput } from './ChatInput';
 import { ChatMessage } from './ChatMessage';
+import { PageKpis } from './PageKpis';
 import { labelForRoute, routeForLabel } from '@/lib/nav-routes';
 import { promptFor } from '@/lib/nav-prompts';
 
@@ -26,7 +27,12 @@ export function ChatShell() {
     lastNavHandled.current = pathname;
     if (isFirstMount) return;
     if (activeLabel && activeLabel !== 'Assistant IA') {
-      sendMessage(promptFor(activeLabel));
+      // N'envoie le prompt que si la conversation de cette route est vide
+      // (lecture directe du storage pour éviter les races avec le state)
+      const existing = localStorage.getItem(`nadia-chat-history:${pathname}`);
+      if (!existing || existing === '[]') {
+        sendMessage(promptFor(activeLabel));
+      }
     }
   }, [pathname, activeLabel, sendMessage]);
 
@@ -37,7 +43,11 @@ export function ChatShell() {
   const handleShortcut = (label: string) => {
     const path = routeForLabel(label);
     if (pathname === path) {
-      sendMessage(promptFor(label));
+      // Déjà sur la page : on relance le prompt seulement si conversation vide
+      const existing = localStorage.getItem(`nadia-chat-history:${pathname}`);
+      if (!existing || existing === '[]') {
+        sendMessage(promptFor(label));
+      }
     } else {
       router.push(path);
     }
@@ -56,6 +66,8 @@ export function ChatShell() {
             if (window.confirm('Vider la conversation ?')) clearMessages();
           }}
         />
+
+        <PageKpis pathname={pathname} />
 
         <div className="flex-1 overflow-y-auto chat-scroll px-8">
           {messages.length === 0 ? (

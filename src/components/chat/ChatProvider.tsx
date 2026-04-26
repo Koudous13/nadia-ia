@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { ChatMessage, CustomPrompt, MiddlewareResponse } from '@/types';
 
 interface ChatContextValue {
@@ -22,38 +23,54 @@ export function useChat(): ChatContextValue {
   return ctx;
 }
 
+function storageKeyFor(pathname: string) {
+  return `nadia-chat-history:${pathname || '/'}`;
+}
+
 export function ChatProvider({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname() || '/';
+  const storageKey = storageKeyFor(pathname);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [customPrompts, setCustomPrompts] = useState<CustomPrompt[]>([]);
   const messagesRef = useRef<ChatMessage[]>([]);
+  const activeKeyRef = useRef<string>(storageKey);
 
+  // Load custom prompts once
   useEffect(() => {
-    const saved = localStorage.getItem('nadia-chat-history');
+    const savedP = localStorage.getItem('nadia-custom-prompts');
+    if (savedP) {
+      try { setCustomPrompts(JSON.parse(savedP)); } catch {}
+    }
+  }, []);
+
+  // Load messages whenever pathname (and thus storageKey) changes
+  useEffect(() => {
+    activeKeyRef.current = storageKey;
+    const saved = localStorage.getItem(storageKey);
     if (saved) {
       try {
         const parsed = JSON.parse(saved) as ChatMessage[];
         const restored = parsed.map((m) => ({ ...m, timestamp: new Date(m.timestamp) }));
         setMessages(restored);
         messagesRef.current = restored;
+        return;
       } catch {}
     }
-    const savedP = localStorage.getItem('nadia-custom-prompts');
-    if (savedP) {
-      try {
-        setCustomPrompts(JSON.parse(savedP));
-      } catch {}
-    }
-  }, []);
+    setMessages([]);
+    messagesRef.current = [];
+  }, [storageKey]);
 
+  // Persist messages — only under the currently active key (avoid races mid-navigation)
   useEffect(() => {
     messagesRef.current = messages;
+    if (activeKeyRef.current !== storageKey) return;
     if (messages.length > 0) {
-      localStorage.setItem('nadia-chat-history', JSON.stringify(messages));
+      localStorage.setItem(storageKey, JSON.stringify(messages));
     } else {
-      localStorage.removeItem('nadia-chat-history');
+      localStorage.removeItem(storageKey);
     }
-  }, [messages]);
+  }, [messages, storageKey]);
 
   useEffect(() => {
     localStorage.setItem('nadia-custom-prompts', JSON.stringify(customPrompts));
@@ -93,6 +110,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           content: data.texte,
           timestamp: new Date(),
           data: data.donnees ? { type: data.type_donnees ?? 'texte', donnees: data.donnees } : undefined,
+          suggestions: data.suggestions,
         },
       ]);
     } catch (err) {
@@ -116,8 +134,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
   const clearMessages = useCallback(() => {
     setMessages([]);
-    localStorage.removeItem('nadia-chat-history');
-  }, []);
+    localStorage.removeItem(storageKey);
+  }, [storageKey]);
 
   const savePrompt = useCallback((p: Omit<CustomPrompt, 'id' | 'createdAt'>) => {
     setCustomPrompts((prev) => [{ ...p, id: `prompt-${Date.now()}`, createdAt: Date.now() }, ...prev]);
