@@ -32,7 +32,7 @@ const ORDER_TOTAL   = `CAST(o.total_price->>'$.amount' AS DECIMAL(20,2)) / 100`;
 
 export async function getCaByDay(args: { date_from?: string; date_to?: string }) {
   const { sql, params } = periodSql('pay.created_at', args.date_from, args.date_to);
-  return queryAll(`
+  const data = await queryAll(`
     SELECT DATE(pay.created_at) AS jour,
            ROUND(SUM(${PAYMENT_AMOUNT}), 2) AS ca_encaisse,
            COUNT(DISTINCT pay.id) AS nb_paiements,
@@ -42,7 +42,26 @@ export async function getCaByDay(args: { date_from?: string; date_to?: string })
     WHERE pay.created_at IS NOT NULL AND ${sql}
     GROUP BY DATE(pay.created_at)
     ORDER BY jour
-  `, params);
+  `, params) as Array<{ jour: string; ca_encaisse: number; nb_paiements: number; nb_commandes: number }>;
+
+  // Calcul des extrema côté serveur — l'IA hallucine quand elle scanne une liste.
+  let best_day: typeof data[number] | null = null;
+  let worst_day: typeof data[number] | null = null;
+  let total = 0;
+  for (const d of data) {
+    const v = Number(d.ca_encaisse);
+    total += v;
+    if (best_day === null || v > Number(best_day.ca_encaisse)) best_day = d;
+    if (v > 0 && (worst_day === null || v < Number(worst_day.ca_encaisse))) worst_day = d;
+  }
+
+  return {
+    nb_jours_avec_paiement: data.length,
+    total_encaisse: Math.round(total * 100) / 100,
+    best_day,   // jour avec le CA le plus élevé
+    worst_day,  // jour avec le CA > 0 le plus bas (les jours à 0 sont ignorés)
+    data,       // nommé "data" pour que le pipeline UI rende [CHART:line]
+  };
 }
 
 /**
